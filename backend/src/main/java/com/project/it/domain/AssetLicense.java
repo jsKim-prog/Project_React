@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "asset_license")
+@Table(name = "license_asset")
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = {"licenseFiles", "license"})
 public class AssetLicense extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,15 +25,16 @@ public class AssetLicense extends BaseEntity{
     private ContractStatus contractStatus; //계약구분(신규, 재계약, 갱신..)
     private LocalDate contractDate; //취득일(계약일)
     private LocalDate expireDate; //만료일
+    private int contractCount; //상품구입 개수
 
     @Lob
     private String comment; //기타 설명
 
     private boolean expireYN; //만료여부
     private boolean deleteOrNot; //삭제처리 여부
-    @ElementCollection
-    @Builder.Default
-    private List<FileLicense> fileList = new ArrayList<>(); //계약관련 파일
+
+    //@Builder.Default
+  //  private List<InfoFile> licenseFiles = new ArrayList<>(); //계약관련 파일
 
     @OneToOne
     @JoinColumn(name = "license_id")
@@ -41,30 +42,36 @@ public class AssetLicense extends BaseEntity{
 
     //Method
     //파일 추가
-    public void addFile(FileLicense fileLicense){
-        this.fileList.add(fileLicense);
-    }
+  //  public void addFile(InfoFile infoFile){
+  //      this.licenseFiles.add(infoFile);
+    //}
 
 }
 
-//Hibernate:
-//        create table tbl_license (
-//        id bigint not null auto_increment,
-//        comment varchar(255),
-//        contract_date datetime(6),
-//        expire_date datetime(6),
+//    create table license_asset (
+//        ano bigint not null auto_increment,
+//        reg_date date,
+//        modified_by varchar(255),
+//    update_date date,
+//    created_by varchar(255),
+//    comment tinytext,
+//    contract_count integer not null,
+//        contract_date date,
+//        contract_status enum ('CANCEL','EXPIRE','EXTENSION','NEW','RENEWAL'),
+//        delete_or_not bit not null,
+//        expire_date date,
 //        expireyn bit not null,
-//        max_user_count integer not null,
-//        price_unit varchar(255),
-//        purpose varchar(255),
-//        right_name varchar(255),
-//        total_price integer not null,
 //        type varchar(255),
-//        unit_price integer not null,
-//        primary key (id)
+//        license_id bigint,
+//        primary key (ano)
 //        ) engine=InnoDB
+//alter table if exists license_asset
+//        drop index if exists UK_e7bky6m5cqc2nyh2l8pccviw7
 //        Hibernate:
-//        alter table if exists license_file_list
-//        add constraint FKfesbse7ih3i82ts192s0piqll
+//        alter table if exists license_asset
+//        add constraint UK_e7bky6m5cqc2nyh2l8pccviw7 unique (license_id)
+
+//    alter table if exists license_asset
+//        add constraint FKo5jd6vg7vc33g3rlddcowkbhb
 //        foreign key (license_id)
-//        references tbl_license (id)
+//        references license_info (lno)

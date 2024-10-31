@@ -6,62 +6,54 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "tbl_assetSW")
+@Table(name = "software_manage", indexes = {@Index(name = "idx_sw_document", columnList = "sw_document")})
 @Getter
 @ToString(exclude = "license")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ManageSoftware extends ManageCategory { //물적자원_category : computer/software
+public class ManageSoftware extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long sno;
 
-    private LocalDate regDate; //구입일(등록일)
-    private int totalCount; //전체(구입)개수
-    private int useCount; //현재 사용중 개수
-    private String inCharge;//책임자(등록자 email)
+    @Column(name = "sw_document")
+    private String docuNum; //문서번호(자동생성기로 받은 번호-> 하나의 문서안에 여러 id 포함)
     
-    private boolean deleteOrNot; //삭제처리 여부
+    private int useCount; //현재 사용중 개수
+    private int requestCount; //요청개수(00명 필요)
+    private String reqPurpose; //요청사유
+    
+    private boolean deleteOrNot; //(문서)삭제처리 여부
 
     @ManyToOne
-    @JoinColumn( name = "num_license")
-    private AssetLicense assetLicense; //라이센스 정보
+    @JoinColumn( name = "assetLicense_id")
+    private AssetLicense assetLicense; //라이센스 정보(계약한 건)
 
     //변경용 메서드
-    public void changeTotalCount(int totalCount){
-        this.totalCount = totalCount;
-    }
-    public void changeUseCount(int useCount){
-        this.useCount = useCount;
-    }
-    public void changeInCharge(String inCharge){
-        this.inCharge = inCharge;
-    }
     public void changeDeleteOrNot(boolean deleteOrNot){
         this.deleteOrNot = deleteOrNot;
     }
 
 }
 
-//Hibernate:
-//        create table tbl_assetsw (
-//        id bigint not null auto_increment,
-//        level_1 varchar(255),
-//        level_2 varchar(255),
-//        level_3 varchar(255),
-//        in_charge varchar(255),
-//        reg_date datetime(6),
-//        total_count integer not null,
+//    create table software_manage (
+//        sno bigint not null auto_increment,
+//        reg_date date,
+//        modified_by varchar(255),
+//    update_date date,
+//    created_by varchar(255),
+//    delete_or_not bit not null,
+//        sw_document varchar(255),
+//        req_purpose varchar(255),
+//        request_count integer not null,
 //        use_count integer not null,
-//        num_license bigint,
-//        primary key (id)
+//        asset_license_id bigint,
+//        primary key (sno)
 //        ) engine=InnoDB
-//        Hibernate:
-//        alter table if exists tbl_license
-//        add column version varchar(255)
-//        Hibernate:
-//        alter table if exists tbl_assetsw
-//        add constraint FK5essntuaep54e1xlxxobykpwh
-//        foreign key (num_license)
-//        references tbl_license (id)
+//create index idx_sw_document
+//        on software_manage (sw_document)
+//alter table if exists software_manage
+//        add constraint FKben0kxwdlemyajil7o6k3hxar
+//        foreign key (asset_license_id)
+//        references license_asset (ano)
