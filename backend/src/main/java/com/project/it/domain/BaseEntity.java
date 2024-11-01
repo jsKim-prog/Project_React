@@ -31,4 +31,5 @@ public abstract class BaseEntity { //작성문서 공통
     @LastModifiedDate
     @Column(name = "update_date")
     private LocalDate updateDate; //수정일
+
 }

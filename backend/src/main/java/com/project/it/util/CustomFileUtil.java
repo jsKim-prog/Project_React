@@ -1,15 +1,16 @@
 package com.project.it.util;
 
-import jakarta.annotation.PostConstruct;
+import com.project.it.dto.FileUploadDTO;
+import com.project.it.repository.FileUploadRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -19,84 +20,153 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-@Component //Bean으로 사용
+@Component
 @Log4j2
 @RequiredArgsConstructor
-public class CustomFileUtil { //파일 입출력 담당(p.185)
-    @Value("${org.zerock.upload.path}")
+public class CustomFileUtil { //공통 파일 처리
+    @Value("${fileLocation}")
     private String uploadPath;
-    
-    @PostConstruct //의존성 주입이 완료된 후에 실행되어야 하는 method, 호출되지 않아도 실행
-    public void init(){
-        //저장폴더 생성
-        File tempFolder = new File(uploadPath);
-        if(tempFolder.exists()==false){
+    @Value("${businessFileLocation}")
+    private String path_business; //고객사 관련 파일 폴더
+    @Value("${licenseFileLocation}")
+    private String path_license; //sw 라이선스 관련 파일 폴더
+    @Value("${companyFileLocation}")
+    private String path_company; //자사 관련 파일 폴더
+
+    private final FileUploadRepository fileUploadRepository;
+
+    //파일저장경로 판단(category/assetnum) + 생성
+    private String makeSavePath(String category, Long assetNum) {
+        //--switch()
+        String uploadPath = switch (category) {
+            case "business" -> path_business;
+            case "license" -> path_license;
+            case "company" -> path_company;
+            default -> "";
+        };
+        uploadPath = uploadPath.replace("/", File.separator);
+        log.info("uploadPath:" + uploadPath);
+        String myPath = uploadPath + File.separator + assetNum;
+        log.info("myPath:" + myPath);
+
+        File tempFolder = new File(myPath);
+        if (!tempFolder.exists()) {
             tempFolder.mkdirs();
         }
-        uploadPath = tempFolder.getAbsolutePath();
-        log.info("--------------업로드 경로 : "+uploadPath);
+        myPath = tempFolder.getAbsolutePath();
+        return myPath;
     }
+
+    //파일저장명 생성
+    private String makeSaveFileName(String fileName) {
+        String extension = fileName.substring(fileName.lastIndexOf("."));//확장자
+        UUID uuid = UUID.randomUUID();
+        return uuid + extension;
+    }
+
     //파일저장
-    public List<String> saveFiles(List<MultipartFile> files) throws RuntimeException{
-        if(files == null || files.size() ==0){
+    @Transactional
+    public List<FileUploadDTO> saveFiles(List<MultipartFile> files, String category, Long assetNum) throws RuntimeException {
+        if (files == null || files.size() == 0) {
             return List.of();
         }
-
-        List<String> uploadNames = new ArrayList<>();
-        for(MultipartFile multipartFile:files){
-            String savedName = UUID.randomUUID().toString()+"_"+multipartFile.getOriginalFilename(); //저장명 = uuid_filename
-            Path savePath = Paths.get(uploadPath, savedName);
+        //폴더 생성
+        String myPath = makeSavePath(category, assetNum);
+        log.info("저장경로 : " + myPath);
+        //dto
+        List<FileUploadDTO> uploadDTOS = new ArrayList<>();
+        for (MultipartFile multipartFile : files) {
+            String saveName = makeSaveFileName(Objects.requireNonNull(multipartFile.getOriginalFilename()));
+            Path savePath = Paths.get(myPath, saveName);
+            FileUploadDTO fileUploadDTO = FileUploadDTO.builder()
+                    .assetNum(assetNum)
+                    .category(category)
+                    .originFileName(multipartFile.getOriginalFilename())
+                    .saveFileName(saveName)
+                    .folderPath(myPath)
+                    .size(multipartFile.getSize())
+                    .build();
+            uploadDTOS.add(fileUploadDTO); //db 저장할 dto list 준비
             try {
-                Files.copy(multipartFile.getInputStream(),savePath); //저장
-                //이미지 여부 확인
-                String contentType = multipartFile.getContentType();
-                if(contentType != null && contentType.startsWith("image")){
-                    Path thumbnailPath = Paths.get(uploadPath, "s_"+savedName);
-                    Thumbnails.of(savePath.toFile()).size(200,200).toFile(thumbnailPath.toFile());
-                }
-                uploadNames.add(savedName); //이름배열 추가
-            }catch (IOException e){
-                throw  new RuntimeException(e.getMessage());
+                Files.copy(multipartFile.getInputStream(), savePath); //파일저장
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
             }
-        } //end for()
-        return uploadNames;
+        }
+        return uploadDTOS;
     }
-    
-    //파일 불러오기
-    public ResponseEntity<Resource> getFile(String fileName){
-        Resource resource = new FileSystemResource(uploadPath+File.separator+fileName);
-        if(!resource.isReadable()){
-            resource =new FileSystemResource(uploadPath+File.separator+"default.jpeg");
+
+    //파일불러오기
+    public ResponseEntity<Resource> getFile(FileUploadDTO fileUploadDTO) {
+        String savedPath = fileUploadDTO.getFolderPath();
+        String fileName = fileUploadDTO.getSaveFileName();
+        Resource resource = new FileSystemResource(savedPath + File.separator + fileName);
+        if (!resource.isReadable()) {
+            resource = new FileSystemResource(uploadPath + File.separator + "default.jpeg");
         }
         HttpHeaders headers = new HttpHeaders();
+
         try {
             headers.add("Content-Type", Files.probeContentType(resource.getFile().toPath()));
-            //HTTP 헤더 메시지 생성(.getFile() 필수)
-        }catch (Exception e){
+        } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }
         return ResponseEntity.ok().headers(headers).body(resource);
     }
 
-    //파일 삭제
-    public void deleteFiles(List<String> fileNames){
-        if(fileNames == null || fileNames.size()==0){
+    //파일삭제
+    public void deleteFiles(List<FileUploadDTO> files) {
+        if (files == null || files.size() == 0) {
             return;
         }
-        fileNames.forEach(fileName ->{
-            //섬네일 있는지 확인하고 삭제
-            String thumbnailFileName = "s_"+fileName;
-            Path thumbnailPath = Paths.get(uploadPath, thumbnailFileName); //섬네일 경로
-            Path filePath = Paths.get(uploadPath, fileName); //원본파일 경로
+        files.forEach(fileUploadDTO -> {
+            //원본파일 경로 찾기
+            Path filePath = Paths.get(fileUploadDTO.getFolderPath(), fileUploadDTO.getSaveFileName());
 
             try {
                 Files.deleteIfExists(filePath);
-                Files.deleteIfExists(thumbnailPath);
-            }catch (IOException e){
+            } catch (IOException e) {
                 throw new RuntimeException(e.getMessage());
             }
         });
+
+    }
+
+    //파일변경-동일파일 검색, 기존파일 삭제 후 신규만 저장, dto list만 리턴
+    public List<FileUploadDTO> updateFiles(List<MultipartFile> newFileList, String category, Long assetNum) {
+        //기존 파일 찾아오기
+        List<FileUploadDTO> oldFiles = fileUploadRepository.findAssetFileList(category, assetNum);
+        if (oldFiles == null || oldFiles.size() == 0) {
+            return List.of();
+        }
+
+        //기존파일에 없는 신규파일(추가포함)
+        List<MultipartFile> newSaveFiles = newFileList.stream().filter(newFile
+                ->oldFiles.stream().noneMatch(oldFile->{
+                    return newFile.getOriginalFilename().equals(oldFile.getOriginFileName()) && newFile.getSize()==oldFile.getSize();
+        })).collect(Collectors.toList());
+        newSaveFiles.forEach(saveFile->log.info("신규파일 name"+saveFile.getOriginalFilename()));
+
+        //삭제할 파일용 리스트
+        List<FileUploadDTO> removeFiles = oldFiles.stream().filter(oldFile
+                -> newFileList.stream().noneMatch(newFile->{
+                    return oldFile.getOriginFileName().equals(newFile.getOriginalFilename()) && oldFile.getSize() == newFile.getSize();
+        })).collect(Collectors.toList());
+        removeFiles.forEach(removeFile->log.info("지울파일 name"+removeFile.getOriginFileName()));
+
+
+        if(removeFiles != null && removeFiles.size()>0){
+            deleteFiles(removeFiles);
+            removeFiles.forEach(removeFile->{
+                fileUploadRepository.updateDelState(removeFile.getCategory(), removeFile.getAssetNum(), true); //삭제표시
+            });
+        }
+        //신규파일 data 저장
+        List<FileUploadDTO> newSavedFiles= saveFiles(newSaveFiles, category, assetNum);
+        return newSavedFiles;
     }
 }

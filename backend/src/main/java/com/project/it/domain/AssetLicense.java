@@ -1,7 +1,11 @@
 package com.project.it.domain;
 
+import com.project.it.constant.ContractStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,10 +17,13 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = {"licenseFiles", "license"})
-public class AssetLicense extends BaseEntity{
+@ToString(exclude = {"license"})
+@DynamicInsert
+@DynamicUpdate
+public class AssetLicense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(updatable = false)
     private Long ano; //관리번호
 
     private String type; //권리유형 : 자사특허, (타사)사용권
@@ -30,21 +37,35 @@ public class AssetLicense extends BaseEntity{
     @Lob
     private String comment; //기타 설명
 
+    @ColumnDefault("false")
     private boolean expireYN; //만료여부
+    @ColumnDefault("false")
     private boolean deleteOrNot; //삭제처리 여부
 
-    //@Builder.Default
-  //  private List<InfoFile> licenseFiles = new ArrayList<>(); //계약관련 파일
+    private int totalUseCount; //총 사용가능 개수(maxcount*contractCount)
+
 
     @OneToOne
     @JoinColumn(name = "license_id")
     private InfoLicense license; //관련 라이선스 상품
 
+
     //Method
-    //파일 추가
-  //  public void addFile(InfoFile infoFile){
-  //      this.licenseFiles.add(infoFile);
-    //}
+    public void changeComment(String comment){
+        this.comment = comment;
+    }
+
+    public void changeDeleteState(boolean deleteOrNot){
+        this.deleteOrNot = deleteOrNot;
+    }
+
+    @PrePersist //insert 전 수행
+    public void initTotalUseCount(){
+        int maxUser = this.license.getMaxUserCount();
+        int contractStatus = this.contractCount;
+        this.totalUseCount = maxUser*contractStatus;
+    }
+
 
 }
 

@@ -1,6 +1,6 @@
 package com.project.it.dto;
 
-import com.project.it.domain.ContractStatus;
+import com.project.it.constant.ContractStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,12 +25,13 @@ public class AssetLicenseDTO {
     private boolean expireYN; //만료여부
     private boolean deleteOrNot; //삭제처리 여부
 
+    private int totalUseCount; //총 사용가능 개수(maxcount*contractCount)
+
     @Builder.Default
-    private List<MultipartFile> files = new ArrayList<>(); //계약관련 파일
-    @Builder.Default
-    private List<String> fileNames = new ArrayList<>(); //파일이름 리스트
-    @Builder.Default
-    private List<String> summaries = new ArrayList<>(); //설명입력 리스트
+    private List<MultipartFile> files = new ArrayList<>(); //첨부파일
     
+    private int fileCount; //첨부파일 개수
+
     private Long licenseId; //관련 라이선스 정보
+
 }
