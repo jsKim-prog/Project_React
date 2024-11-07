@@ -1,5 +1,6 @@
 package com.project.it.domain;
 
+import com.project.it.constant.PriceUnit;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -25,7 +26,8 @@ public class InfoLicense {
     private String purpose; //용도 : 디자인, 개발..
     private String copyrightHolder; //저작권자
     private int totalPrice; //금액(계약총액)
-    private String priceUnit; //계약단위(월단위, 년단위, 인원수 단위...)
+    @Enumerated(EnumType.STRING)
+    private PriceUnit priceUnit; //계약단위(월단위, 년단위, 인원수 단위...)
     private int maxUserCount; //최대 사용 가능 인원
     private String contact; //이용경로
 
@@ -36,7 +38,7 @@ public class InfoLicense {
     public void changePrice(int totalPrice){
         this.totalPrice = totalPrice;
     }
-    public void changeUnit(String priceUnit){
+    public void changeUnit(PriceUnit priceUnit){
         this.priceUnit = priceUnit;
     }
     public void changeUserCount(int maxUserCount){

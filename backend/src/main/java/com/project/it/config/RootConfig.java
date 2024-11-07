@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class RootConfig {
     //ModelMapper 설정
     @Bean
-    public ModelMapper getMapper(){
+    public ModelMapper getMapper(){ //**11.05 Custom
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
                 .setFieldMatchingEnabled(true)
@@ -18,3 +18,8 @@ public class RootConfig {
         return modelMapper;
     }
 }
+
+// modelMapper.getConfiguration()
+//         .setFieldMatchingEnabled(true)
+//         .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE)
+//         .setMatchingStrategy(MatchingStrategies.LOOSE);

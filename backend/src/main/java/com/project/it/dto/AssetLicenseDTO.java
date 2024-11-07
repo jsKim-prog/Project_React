@@ -1,6 +1,7 @@
 package com.project.it.dto;
 
 import com.project.it.constant.ContractStatus;
+import com.project.it.constant.RightType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 public class AssetLicenseDTO {
     private Long ano;
-    private String type; //권리유형 : 자사특허, (타사)사용권
+    private RightType type; //권리유형 : 자사특허, (타사)사용권
     private ContractStatus contractStatus; //계약구분(신규, 재계약, 갱신..)
     private LocalDate contractDate; //취득일(계약일)
     private LocalDate expireDate; //만료일
@@ -26,12 +27,15 @@ public class AssetLicenseDTO {
     private boolean deleteOrNot; //삭제처리 여부
 
     private int totalUseCount; //총 사용가능 개수(maxcount*contractCount)
+    private int currentUseCount ; //현재 사용중 개수
+
+    private Long licenseId; //관련 라이선스 id
 
     @Builder.Default
     private List<MultipartFile> files = new ArrayList<>(); //첨부파일
-    
+
     private int fileCount; //첨부파일 개수
 
-    private Long licenseId; //관련 라이선스 정보
+
 
 }

@@ -1,7 +1,7 @@
 package com.project.it.util;
 
 import com.project.it.dto.FileUploadDTO;
-import com.project.it.repository.FileUploadRepository;
+import com.project.it.repository.FileLicenseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +37,7 @@ public class CustomFileUtil { //공통 파일 처리
     @Value("${companyFileLocation}")
     private String path_company; //자사 관련 파일 폴더
 
-    private final FileUploadRepository fileUploadRepository;
+    private final FileLicenseRepository fileLicenseRepository;
 
     //파일저장경로 판단(category/assetnum) + 생성
     private String makeSavePath(String category, Long assetNum) {
@@ -139,7 +139,7 @@ public class CustomFileUtil { //공통 파일 처리
     //파일변경-동일파일 검색, 기존파일 삭제 후 신규만 저장, dto list만 리턴
     public List<FileUploadDTO> updateFiles(List<MultipartFile> newFileList, String category, Long assetNum) {
         //기존 파일 찾아오기
-        List<FileUploadDTO> oldFiles = fileUploadRepository.findAssetFileList(category, assetNum);
+        List<FileUploadDTO> oldFiles = fileLicenseRepository.findAssetFileList(category, assetNum);
         if (oldFiles == null || oldFiles.size() == 0) {
             return List.of();
         }
@@ -162,11 +162,13 @@ public class CustomFileUtil { //공통 파일 처리
         if(removeFiles != null && removeFiles.size()>0){
             deleteFiles(removeFiles);
             removeFiles.forEach(removeFile->{
-                fileUploadRepository.updateDelState(removeFile.getCategory(), removeFile.getAssetNum(), true); //삭제표시
+                fileLicenseRepository.updateDelState(removeFile.getCategory(), removeFile.getAssetNum(), true); //삭제표시
             });
         }
         //신규파일 data 저장
         List<FileUploadDTO> newSavedFiles= saveFiles(newSaveFiles, category, assetNum);
         return newSavedFiles;
     }
+
+
 }

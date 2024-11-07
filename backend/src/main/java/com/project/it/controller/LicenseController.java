@@ -1,9 +1,6 @@
 package com.project.it.controller;
 
-import com.project.it.dto.AssetLicenseDTO;
-import com.project.it.dto.InfoLicenseDTO;
-import com.project.it.dto.PageRequestDTO;
-import com.project.it.dto.PageResponseDTO;
+import com.project.it.dto.*;
 import com.project.it.service.AssetLicenseService;
 import com.project.it.service.InfoLicenseService;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +75,7 @@ public class LicenseController {
     }
     //조회 all : asset license(with paging+file count)
     @GetMapping("/asset")
-    public PageResponseDTO<AssetLicenseDTO> getListAsset(PageRequestDTO pageRequestDTO){
+    public PageResponseDTO<AssetLicenseListDTO> getListAsset(PageRequestDTO pageRequestDTO){
         return assetService.getList(pageRequestDTO);
     }
 

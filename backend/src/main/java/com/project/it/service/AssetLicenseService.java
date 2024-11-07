@@ -1,7 +1,7 @@
 package com.project.it.service;
 
-import com.project.it.domain.AssetLicense;
 import com.project.it.dto.AssetLicenseDTO;
+import com.project.it.dto.AssetLicenseListDTO;
 import com.project.it.dto.PageRequestDTO;
 import com.project.it.dto.PageResponseDTO;
 
@@ -13,7 +13,7 @@ public interface AssetLicenseService {
     AssetLicenseDTO getOne(Long ano);
 
     //R_all : 라이선스(asset) 리스트+ file 개수
-    PageResponseDTO<AssetLicenseDTO> getList(PageRequestDTO pageRequestDTO);
+    PageResponseDTO<AssetLicenseListDTO> getList(PageRequestDTO pageRequestDTO);
     //U : 라이선스 관리 정보 변경
     void update(AssetLicenseDTO assetLicenseDTO);
 

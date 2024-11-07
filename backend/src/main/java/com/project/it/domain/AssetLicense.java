@@ -1,6 +1,7 @@
 package com.project.it.domain;
 
 import com.project.it.constant.ContractStatus;
+import com.project.it.constant.RightType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -8,8 +9,6 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "license_asset")
@@ -26,7 +25,8 @@ public class AssetLicense {
     @Column(updatable = false)
     private Long ano; //관리번호
 
-    private String type; //권리유형 : 자사특허, (타사)사용권
+    @Enumerated(EnumType.STRING)
+    private RightType type; //권리유형 : 자사특허, (타사)사용권
 
     @Enumerated(EnumType.STRING)
     private ContractStatus contractStatus; //계약구분(신규, 재계약, 갱신..)
@@ -43,11 +43,14 @@ public class AssetLicense {
     private boolean deleteOrNot; //삭제처리 여부
 
     private int totalUseCount; //총 사용가능 개수(maxcount*contractCount)
+    private int currentUseCount ; //현재 사용중 개수
 
-
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "license_id")
     private InfoLicense license; //관련 라이선스 상품
+    
+    private int fileCount; //첨부파일 개수
+
 
 
     //Method
@@ -64,6 +67,13 @@ public class AssetLicense {
         int maxUser = this.license.getMaxUserCount();
         int contractStatus = this.contractCount;
         this.totalUseCount = maxUser*contractStatus;
+    }
+
+    public void plusCurrentCount(int count){
+        this.currentUseCount += count;
+    }
+    public void minusCurrentCount(int count){
+        this.currentUseCount -= count;
     }
 
 

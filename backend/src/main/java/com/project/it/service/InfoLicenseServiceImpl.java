@@ -22,10 +22,43 @@ public class InfoLicenseServiceImpl implements InfoLicenseService{
     private final InfoLicenseRepository infoLicenseRepository;
     private final ModelMapper modelMapper;
 
+    //common method
+    //dtoToEntity
+    private InfoLicense dtoToEntity(InfoLicenseDTO dto){
+        InfoLicense entity = InfoLicense.builder()
+                .lno(dto.getLno())
+                .rightName(dto.getRightName())
+                .version(dto.getVersion())
+                .purpose(dto.getPurpose())
+                .copyrightHolder(dto.getCopyrightHolder())
+                .totalPrice(dto.getTotalPrice())
+                .priceUnit(dto.getPriceUnit())
+                .maxUserCount(dto.getMaxUserCount())
+                .contact(dto.getContact())
+                .build();
+        return entity;
+    }
+
+    //entity to dto
+    private InfoLicenseDTO entityToDto(InfoLicense entity){
+        InfoLicenseDTO dto = InfoLicenseDTO.builder()
+                .lno(entity.getLno())
+                .rightName(entity.getRightName())
+                .version(entity.getVersion())
+                .purpose(entity.getPurpose())
+                .copyrightHolder(entity.getCopyrightHolder())
+                .totalPrice(entity.getTotalPrice())
+                .priceUnit(entity.getPriceUnit())
+                .maxUserCount(entity.getMaxUserCount())
+                .contact(entity.getContact())
+                .build();
+        return dto;
+    }
+
 
     @Override  //C : 등록
     public Long register(InfoLicenseDTO infoLicenseDTO) {
-        InfoLicense result = modelMapper.map(infoLicenseDTO, InfoLicense.class);
+        InfoLicense result = dtoToEntity(infoLicenseDTO);
         InfoLicense saveInfo = infoLicenseRepository.save(result);
         return saveInfo.getLno();
     }
@@ -33,7 +66,7 @@ public class InfoLicenseServiceImpl implements InfoLicenseService{
     @Override //R_one : 라이선스 정보 하나만 가져오기
     public InfoLicenseDTO getOne(Long lno) {
         InfoLicense findResult = infoLicenseRepository.findById(lno).orElseThrow(EntityExistsException::new);
-        InfoLicenseDTO findDto = modelMapper.map(findResult, InfoLicenseDTO.class);
+        InfoLicenseDTO findDto = entityToDto(findResult);
         return findDto;
     }
 

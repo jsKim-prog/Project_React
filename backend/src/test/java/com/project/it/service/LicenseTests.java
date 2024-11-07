@@ -1,14 +1,29 @@
 package com.project.it.service;
 
-import com.project.it.dto.InfoLicenseDTO;
-import com.project.it.dto.InfoPartnersDTO;
+import com.project.it.constant.ContractStatus;
+import com.project.it.constant.PriceUnit;
+import com.project.it.constant.RightType;
+import com.project.it.dto.*;
+import com.project.it.util.CustomFileUtil;
 import lombok.extern.log4j.Log4j2;
+import org.aspectj.util.FileUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 @SpringBootTest
 @Log4j2
@@ -19,6 +34,8 @@ public class LicenseTests {
     private InfoLicenseService serviceInfo;
     @Autowired
     private AssetLicenseService serviceAsset;
+    @Autowired
+    private CustomFileUtil fileUtil;
 
     //고객사 등록(Dummy)
     @Test
@@ -48,7 +65,7 @@ public class LicenseTests {
                 .purpose("programming")
                 .copyrightHolder("JetBrains s.r.o.")
                 .totalPrice(826680)
-                .priceUnit("person")
+                .priceUnit(PriceUnit.PERSON)
                 .maxUserCount(1)
                 .contact("https://www.jetbrains.com/ko-kr/idea/buy/?section=commercial&billing=yearly")
                 .build();
@@ -59,7 +76,7 @@ public class LicenseTests {
                 .purpose("design")
                 .copyrightHolder("Adobe")
                 .totalPrice(104000)
-                .priceUnit("month")
+                .priceUnit(PriceUnit.MONTHLY)
                 .maxUserCount(1)
                 .contact("https://www.adobe.com/kr/creativecloud/plans.html")
                 .build();
@@ -68,12 +85,93 @@ public class LicenseTests {
         log.info("등록된 ano :"+ano1 + "/"+ano2);
     }
 
+
+    //info dummy
+    @Test
+    public void infoDummyInsertTest(){
+        DecimalFormat fourNum = new DecimalFormat("0000");
+        List<InfoLicenseDTO> list = new ArrayList<>();
+        LongStream.rangeClosed(1, 10).forEach(i->{
+            InfoLicenseDTO dto = InfoLicenseDTO.builder()
+                    .rightName("라이선스"+fourNum.format(i))
+                    .version("version"+i)
+                    .purpose("dummy")
+                    .copyrightHolder("dummy")
+                    .totalPrice((int) i*10000)
+                    .priceUnit(PriceUnit.MONTHLY)
+                    .maxUserCount(1)
+                    .contact("DummyData")
+                    .build();
+            serviceInfo.register(dto);
+            list.add(dto);
+        });
+        list.forEach(infoLicenseDTO -> log.info(infoLicenseDTO));
+    }
+
     //info 수정
     @Test
     public void modInfoLicense(){
-        InfoLicenseDTO modinfo = serviceInfo.getOne(1L);
-        modinfo.setPriceUnit("year");
+        InfoLicenseDTO modinfo = serviceInfo.getOne(2L);
+        modinfo.setPriceUnit(PriceUnit.MONTHLY);
         serviceInfo.update(modinfo);
         log.info(modinfo);
     }
+
+    //Asset 등록
+    @Test
+    public void insertAssetTest(){
+      //  InfoLicenseDTO infoDto = serviceInfo.getOne(1L);
+        LocalDate today = LocalDate.now();
+        AssetLicenseDTO dto = AssetLicenseDTO.builder()
+                .type(RightType.LICENSE)
+                .contractStatus(ContractStatus.NEW)
+                .contractCount(5)
+                .contractDate(today)
+                .expireDate(today.plusYears(1L))
+                .licenseId(1L)
+                .build();
+        serviceAsset.register(dto);
+    }
+
+
+    //Asset dummy
+    @Test
+    public void assetDummyInsertTest(){
+        //DecimalFormat fourNum = new DecimalFormat("0000");
+        LocalDate today = LocalDate.now();
+        List<AssetLicenseDTO> list = new ArrayList<>();
+        IntStream.rangeClosed(1, 5).forEach(i->{
+            Long licenseID  = (long)i ;
+            log.info("randomID : "+licenseID);
+            AssetLicenseDTO dto = AssetLicenseDTO.builder()
+                    .type(RightType.LICENSE)
+                    .contractStatus(ContractStatus.NEW)
+                    .contractCount(5+i)
+                    .contractDate(today)
+                    .expireDate(today.plusMonths(1L))
+                    .licenseId(licenseID)
+                    .build();
+            serviceAsset.register(dto);
+            list.add(dto);
+        });
+        list.forEach(infoLicenseDTO -> log.info(infoLicenseDTO));
+    }
+
+
+    //리스트
+    @Test
+    public void assetListTest(){
+        PageRequestDTO requestDTO = new PageRequestDTO();
+        requestDTO.setPage(1);
+        requestDTO.setSize(5);
+        serviceAsset.getList(requestDTO);
+        PageResponseDTO<AssetLicenseListDTO> assetList = serviceAsset.getList(requestDTO);
+        List<AssetLicenseListDTO> list = assetList.getDtoList();
+        log.info("리스트 개수 : "+list.size());
+        list.forEach(asset->{
+            log.info(asset);
+        });
+    }
+
+
 }

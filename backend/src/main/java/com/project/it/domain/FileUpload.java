@@ -8,7 +8,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 
 @Entity
-@Table(name = "files", indexes = {@Index(name = "idx_file_category", columnList = "category"), @Index(name = "idx_file_asset", columnList = "assetNum")})
+@Table(name = "files", indexes = {@Index(name = "idx_file_category", columnList = "category"),@Index(name = "idx_file_asset", columnList = "assetNum")})
 @ToString
 @Getter
 @DynamicInsert
@@ -20,7 +20,6 @@ public class FileUpload { //라이선스 관련 증빙 파일, 설치파일 등 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false)
     private Long fno;
-
     @Column(nullable = false, updatable = false)
     private String category; //구분(폴더)
     @Column(nullable = false, updatable = false)
