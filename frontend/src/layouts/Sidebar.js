@@ -20,10 +20,6 @@ const Sidebar = () => {
 
   /*custom method*/
   const {menu1, menu2, menu3, menu4} = PageInfo();
-  console.log(menu1);
-  console.log(menu2);
-  console.log(menu3);
-  console.log(menu4);
 
   return (
     <div>
@@ -57,7 +53,8 @@ const Sidebar = () => {
             <span className="ms-3 d-inline-block">{menu1.topMenu.title}</span>
           </Link>
         </NavItem>
-        <NavItem className="sidenav-bg">
+       
+        <NavItem   className="sidenav-bg">
           <Link
             to={menu2.topMenu.href}
             className={
@@ -68,12 +65,12 @@ const Sidebar = () => {
             <span className="ms-3 d-inline-block">{menu2.topMenu.title}</span>
           </Link>
         </NavItem>
-        {menu2.subMenus.map(sub=>(
+        {menu2.subMenus.map((sub, index)=>(
           <ul className="offset-1">
-            <Link to={sub.href}><li>{sub.title}</li></Link>
+            <Link to={sub.href}><li className="sidenav-bg" key={index}>{sub.title}</li></Link>
           </ul>
         ))}
-        <NavItem className="sidenav-bg">
+        <NavItem  className="sidenav-bg">
           <Link
             to={menu3.topMenu.href}
             className={
@@ -84,12 +81,12 @@ const Sidebar = () => {
             <span className="ms-3 d-inline-block">{menu3.topMenu.title}</span>
           </Link>
         </NavItem>
-        {menu3.subMenus.map(sub=>(
+        {menu3.subMenus.map((sub, index)=>(
           <ul className="offset-1">
-            <Link to={sub.href}><li>{sub.title}</li></Link>
+            <Link to={sub.href}><li className="sidenav-bg" key={index}>{sub.title}</li></Link>
           </ul>
         ))}
-        <NavItem className="sidenav-bg">
+        <NavItem  className="sidenav-bg">
           <Link
             to={menu4.topMenu.href}
             className={
@@ -100,9 +97,9 @@ const Sidebar = () => {
             <span className="ms-3 d-inline-block">{menu4.topMenu.title}</span>
           </Link>
         </NavItem>
-        {menu4.subMenus.map(sub=>(
+        {menu4.subMenus.map((sub, index)=>(
           <ul className="offset-1">
-            <Link to={sub.href}><li>{sub.title}</li></Link>
+            <Link to={sub.href}><li className="sidenav-bg" key={index}>{sub.title}</li></Link>
           </ul>
         ))}
 

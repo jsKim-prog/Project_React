@@ -31,7 +31,7 @@ const menu2_sub2 = {
 //menu3
 const menu3_topMenu = {
   title: "인사관리",
-  href: "/badges",
+  href: "/",
   icon: "bi bi-people",
   role: ""
 }
@@ -51,35 +51,35 @@ const menu3_sub2 = {
 //menu4
 const menu4_topMenu = {
   title: "자원관리",
-  href: "/buttons",
+  href: "/",
   icon: "bi bi-hdd-stack",
   role: ""
 }
 
 const menu4_sub1 = {
-  title: "하드웨어",
+  title: "자원사용신청(문서함)",
   href: "/",
   role: ""
 }
 
 const menu4_sub2 = {
-  title: "소프트웨어",
+  title: "하드웨어 관리",
   href: "/",
   role: ""
 }
 const menu4_sub3 = {
-  title: "라이선스",
-  href: "/",
+  title: "라이선스 관리",
+  href: "/dist/licenses",
   role: ""
 }
 
 const menu4_sub4 = {
-  title: "고객사",
+  title: "고객사 관리",
   href: "/",
   role: ""
 }
 const menu4_sub5 = {
-  title: "사무용품",
+  title: "사무용품 관리",
   href: "/",
   role: ""
 }

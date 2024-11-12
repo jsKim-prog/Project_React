@@ -7,6 +7,7 @@ const ano = 0
 
 /* 등록 : info license */
 export const registInfo = async (dto) => {
+    const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     const res = await axios.post(`${prefix}/info`, dto)
     return res.data
 }
@@ -16,7 +17,8 @@ export const getOneInfo = async (lno) => {
     return res.data
 }
 /* 조회 all : info license */
-export const getListInfo = async () => {
+export const getListInfo = async (pageParam) => {
+    const { page, size } = pageParam
     const res = await axios.get(`${prefix}/info`)
     return res.data
 }
