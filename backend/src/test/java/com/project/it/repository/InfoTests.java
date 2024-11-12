@@ -6,35 +6,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.stream.LongStream;
+
 @SpringBootTest
 @Log4j2
 public class InfoTests {
- /*   @Autowired
-    private InfoComputerRepository infoComputerRepository;
-    @Autowired
-    private InfoMonitorRepository infoMonitorRepository;
+   @Autowired
+    private InfoLicenseRepository infoLicenseRepository;
 
-    //더미 입력
+
+    //삭제
     @Test
-    public void insertCominfoTest(){
-        InfoComputer infoComputer = InfoComputer.builder()
-                .cpu("Intel(R) Core(TM) i5-6600 CPU @ 3.30GHz")
-                .gpu("NVIDIA Geforce GTX 1060 3GB")
-                .ram("16.0GB")
-               .capacity("680GB")
-                .build();
+    public void delInfoTest(){
+            infoLicenseRepository.deleteById(17L);
 
-        infoComputerRepository.save(infoComputer);
-        log.info("===등록된 id : "+infoComputer.getId());
 
     }
 
-    @Test
-    public void insertMonitorInfoTest(){
-        InfoMonitor infoMonitor = InfoMonitor.builder()
-                .size(27)
-                .resolution("QHD")
-                .build();
-        infoMonitorRepository.save(infoMonitor);
-    } */
+
 }

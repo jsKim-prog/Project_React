@@ -1,6 +1,8 @@
 package com.project.it.service;
 
 import com.project.it.dto.InfoLicenseDTO;
+import com.project.it.dto.PageRequestDTO;
+import com.project.it.dto.PageResponseDTO;
 
 import java.util.List;
 
@@ -13,6 +15,9 @@ public interface InfoLicenseService {
     
     //R_all : 라이선스 리스트(정보 객체만 담은 리스트-> asset file 과 합쳐져야 함)
     List<InfoLicenseDTO> getList();
+
+    //R_all : 라이선스 리스트+paging
+    PageResponseDTO<InfoLicenseDTO> getListWithPage(PageRequestDTO pageRequestDTO);
 
     //U : 라이선스 정보 변경
     void update(InfoLicenseDTO infoLicenseDTO);

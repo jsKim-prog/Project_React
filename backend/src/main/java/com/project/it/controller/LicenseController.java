@@ -24,6 +24,7 @@ public class LicenseController {
     public Map<String, Long> registerInfo(InfoLicenseDTO infoLicenseDTO){
         log.info("(Controller)license info register 실행====등록할 파일 : " + infoLicenseDTO);
         Long lno = infoService.register(infoLicenseDTO);
+
         return Map.of("result", lno);
     }
 
@@ -36,8 +37,9 @@ public class LicenseController {
 
     //조회 all : info license
     @GetMapping("/info")
-    public List<InfoLicenseDTO> listInfo(){
-        return infoService.getList();
+    public PageResponseDTO<InfoLicenseDTO> listInfo(PageRequestDTO pageRequestDTO){
+
+        return infoService.getListWithPage(pageRequestDTO);
     }
 
     //변경 :info license
@@ -70,7 +72,7 @@ public class LicenseController {
     }
     //조회 one : asset license(with file list)
     @GetMapping("/asset/{ano}")
-    public AssetLicenseDTO readAsset(@PathVariable(name = "ano") Long ano){
+    public AssetLicenseOneDTO readAsset(@PathVariable(name = "ano") Long ano){
         return assetService.getOne(ano);
     }
     //조회 all : asset license(with paging+file count)

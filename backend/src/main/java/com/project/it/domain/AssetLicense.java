@@ -33,6 +33,7 @@ public class AssetLicense {
     private LocalDate contractDate; //취득일(계약일)
     private LocalDate expireDate; //만료일
     private int contractCount; //상품구입 개수
+    private int totalPrice; //구입총액(count*contractCount)
 
     @Lob
     private String comment; //기타 설명
@@ -45,7 +46,7 @@ public class AssetLicense {
     private int totalUseCount; //총 사용가능 개수(maxcount*contractCount)
     private int currentUseCount ; //현재 사용중 개수
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "license_id")
     private InfoLicense license; //관련 라이선스 상품
     
@@ -68,6 +69,7 @@ public class AssetLicense {
         int contractStatus = this.contractCount;
         this.totalUseCount = maxUser*contractStatus;
     }
+
 
     public void plusCurrentCount(int count){
         this.currentUseCount += count;

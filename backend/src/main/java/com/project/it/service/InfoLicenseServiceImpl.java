@@ -2,17 +2,23 @@ package com.project.it.service;
 
 import com.project.it.domain.InfoLicense;
 import com.project.it.dto.InfoLicenseDTO;
+import com.project.it.dto.PageRequestDTO;
+import com.project.it.dto.PageResponseDTO;
 import com.project.it.repository.InfoLicenseRepository;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -31,7 +37,7 @@ public class InfoLicenseServiceImpl implements InfoLicenseService{
                 .version(dto.getVersion())
                 .purpose(dto.getPurpose())
                 .copyrightHolder(dto.getCopyrightHolder())
-                .totalPrice(dto.getTotalPrice())
+                .price(dto.getPrice())
                 .priceUnit(dto.getPriceUnit())
                 .maxUserCount(dto.getMaxUserCount())
                 .contact(dto.getContact())
@@ -47,7 +53,7 @@ public class InfoLicenseServiceImpl implements InfoLicenseService{
                 .version(entity.getVersion())
                 .purpose(entity.getPurpose())
                 .copyrightHolder(entity.getCopyrightHolder())
-                .totalPrice(entity.getTotalPrice())
+                .price(entity.getPrice())
                 .priceUnit(entity.getPriceUnit())
                 .maxUserCount(entity.getMaxUserCount())
                 .contact(entity.getContact())
@@ -82,10 +88,23 @@ public class InfoLicenseServiceImpl implements InfoLicenseService{
         return dtoList;
     }
 
+    @Override //리스트(+paging)
+    public PageResponseDTO<InfoLicenseDTO> getListWithPage(PageRequestDTO pageRequestDTO) {
+        Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1, pageRequestDTO.getSize(), Sort.by("lno").descending());
+        Page<InfoLicense> result = infoLicenseRepository.searchAllByPaging(pageable);
+        List<InfoLicenseDTO> dtoList = result.get().map(info->{
+            InfoLicenseDTO dto = modelMapper.map(info, InfoLicenseDTO.class);
+            return dto;
+        }).collect(Collectors.toList());
+        long totalCount = result.getTotalElements();
+
+        return PageResponseDTO.<InfoLicenseDTO>withAll().dtoList(dtoList).pageRequestDTO(pageRequestDTO).totalCount(totalCount).build();
+    }
+
     @Override //U : 라이선스 정보 변경
     public void update(InfoLicenseDTO infoLicenseDTO) {
         InfoLicense findResult = infoLicenseRepository.findById(infoLicenseDTO.getLno()).orElseThrow(EntityExistsException::new);
-        findResult.changePrice(infoLicenseDTO.getTotalPrice());
+        findResult.changePrice(infoLicenseDTO.getPrice());
         findResult.changeUnit(infoLicenseDTO.getPriceUnit());
         findResult.changeUserCount(infoLicenseDTO.getMaxUserCount());
         findResult.changeContact(infoLicenseDTO.getContact());

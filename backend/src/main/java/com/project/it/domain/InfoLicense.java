@@ -25,7 +25,7 @@ public class InfoLicense {
     private String version; //제품 버전
     private String purpose; //용도 : 디자인, 개발..
     private String copyrightHolder; //저작권자
-    private int totalPrice; //금액(계약총액)
+    private int price; //금액(계약총액)
     @Enumerated(EnumType.STRING)
     private PriceUnit priceUnit; //계약단위(월단위, 년단위, 인원수 단위...)
     private int maxUserCount; //최대 사용 가능 인원
@@ -36,7 +36,7 @@ public class InfoLicense {
 
     //변경용 method(금액, 단위, 사용가능인원, 이용경로)
     public void changePrice(int totalPrice){
-        this.totalPrice = totalPrice;
+        this.price = totalPrice;
     }
     public void changeUnit(PriceUnit priceUnit){
         this.priceUnit = priceUnit;

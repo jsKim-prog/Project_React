@@ -5,7 +5,7 @@ import com.project.it.domain.FileUpload;
 import com.project.it.domain.InfoLicense;
 import com.project.it.dto.*;
 import com.project.it.repository.AssetLicenseRepository;
-import com.project.it.repository.FileLicenseRepository;
+import com.project.it.repository.FileRepository;
 import com.project.it.repository.InfoLicenseRepository;
 import com.project.it.util.CustomFileUtil;
 import jakarta.persistence.EntityExistsException;
@@ -32,7 +32,7 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
     private final AssetLicenseRepository assetLicenseRepository;
     private final ModelMapper modelMapper;
     private final CustomFileUtil fileUtil;
-    private final FileLicenseRepository fileLicenseRepository;
+    private final FileRepository fileRepository;
     private final InfoLicenseRepository infoLicenseRepository;
     
     private final String category = "license";
@@ -52,15 +52,42 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
             FileUpload saveFile = modelMapper.map(dto, FileUpload.class);
             saveFile.setCategory(category);
             saveFile.setAssetNum(ano);
-            fileLicenseRepository.save(saveFile);
+            fileRepository.save(saveFile);
         });
         
         return ano;
     }
 
-    @Override //R_one : 라이선스 정보 하나만 가져오기 + file 리스트
-    public AssetLicenseDTO getOne(Long ano) {
-        return assetLicenseRepository.findByAnoWithFiles(ano);
+    @Override //R_one : 라이선스 정보 하나만 가져오기 + file 리스트+info
+    public AssetLicenseOneDTO getOne(Long ano) {
+        //asset정보
+        Optional<AssetLicense> entity = assetLicenseRepository.findById(ano);
+        AssetLicense asset = entity.orElseThrow(EntityExistsException::new);
+        //파일찾기
+        List<FileUploadDTO> files = fileRepository.findAssetFileList(category, asset.getAno());
+        //getOne용 별도 DTO
+        AssetLicenseOneDTO dto = AssetLicenseOneDTO.builder()
+                .ano(asset.getAno())
+                .rightName(asset.getLicense().getRightName())
+                .purpose(asset.getLicense().getPurpose())
+                .type(asset.getType())
+                .contractStatus(asset.getContractStatus())
+                .contractDate(asset.getContractDate())
+                .expireDate(asset.getExpireDate())
+                .contractCount(asset.getContractCount())
+                .comment(asset.getComment())
+                .expireYN(asset.isExpireYN())
+                .totalPrice(asset.getTotalPrice())
+                .priceUnit(asset.getLicense().getPriceUnit())
+                .maxUserCount(asset.getLicense().getMaxUserCount())
+                .totalUseCount(asset.getTotalUseCount())
+                .currentUseCount(asset.getCurrentUseCount())
+                .licenseId(asset.getLicense().getLno())
+                .savedFiles(files)
+                .fileCount(files.size())
+                .contact(asset.getLicense().getContact())
+                .build();
+        return dto;
     }
 
     @Override  //R_all : 라이선스(asset) 리스트+ file 개수
@@ -106,26 +133,26 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
         //신규파일 db 저장
         newFiles.forEach(newFile ->{
             FileUpload entity = modelMapper.map(newFile, FileUpload.class);
-            fileLicenseRepository.save(entity);
+            fileRepository.save(entity);
         });
     }
 
     @Override  //D: 라이선스 삭제_삭제처리(리스트에서 보이지 않게: file list도 삭제처리 )
     public void remove(Long ano) {
         assetLicenseRepository.updateToDelete(ano, true);
-        List<FileUploadDTO> fileUploadDTOS = fileLicenseRepository.findAssetFileList(category, ano);
+        List<FileUploadDTO> fileUploadDTOS = fileRepository.findAssetFileList(category, ano);
         fileUploadDTOS.forEach(removeFile->{
-            fileLicenseRepository.updateDelState(category, ano, true);
+            fileRepository.updateDelState(category, ano, true);
         });
     }
 
     @Override  //D_forever : 라이선스 영구삭제_db에서 삭제(관련 파일까지 삭제)
     public void removeForever(Long ano) {
         assetLicenseRepository.deleteById(ano);
-        List<FileUploadDTO> files = fileLicenseRepository.findAssetFileList(category, ano);
+        List<FileUploadDTO> files = fileRepository.findAssetFileList(category, ano);
         fileUtil.deleteFiles(files); //file data 삭제
         files.forEach(removeFile ->{
-            fileLicenseRepository.deleteById(removeFile.getFno());
+            fileRepository.deleteById(removeFile.getFno());
         }); //db 리스트 삭제
     }
 
@@ -143,7 +170,6 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
                 .licenseId(entity.getLicense().getLno())
                 .totalUseCount(entity.getTotalUseCount())
                 .currentUseCount(entity.getCurrentUseCount())
-                .fileCount(entity.getFileCount())
                 .build();
         return dto;
     }

@@ -1,16 +1,13 @@
 package com.project.it.service;
 
-import com.project.it.dto.AssetLicenseDTO;
-import com.project.it.dto.AssetLicenseListDTO;
-import com.project.it.dto.PageRequestDTO;
-import com.project.it.dto.PageResponseDTO;
+import com.project.it.dto.*;
 
 public interface AssetLicenseService {
     //C : 등록
     Long register(AssetLicenseDTO assetLicenseDTO);
 
     //R_one : 라이선스 정보 하나만 가져오기 + file 리스트
-    AssetLicenseDTO getOne(Long ano);
+    AssetLicenseOneDTO getOne(Long ano);
 
     //R_all : 라이선스(asset) 리스트+ file 개수
     PageResponseDTO<AssetLicenseListDTO> getList(PageRequestDTO pageRequestDTO);

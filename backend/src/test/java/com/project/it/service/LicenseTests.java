@@ -6,20 +6,12 @@ import com.project.it.constant.RightType;
 import com.project.it.dto.*;
 import com.project.it.util.CustomFileUtil;
 import lombok.extern.log4j.Log4j2;
-import org.aspectj.util.FileUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -64,7 +56,7 @@ public class LicenseTests {
                 .version("IntelliJ IDEA")
                 .purpose("programming")
                 .copyrightHolder("JetBrains s.r.o.")
-                .totalPrice(826680)
+                .price(826680)
                 .priceUnit(PriceUnit.PERSON)
                 .maxUserCount(1)
                 .contact("https://www.jetbrains.com/ko-kr/idea/buy/?section=commercial&billing=yearly")
@@ -75,7 +67,7 @@ public class LicenseTests {
                 .version("Creative Cloud")
                 .purpose("design")
                 .copyrightHolder("Adobe")
-                .totalPrice(104000)
+                .price(104000)
                 .priceUnit(PriceUnit.MONTHLY)
                 .maxUserCount(1)
                 .contact("https://www.adobe.com/kr/creativecloud/plans.html")
@@ -97,7 +89,7 @@ public class LicenseTests {
                     .version("version"+i)
                     .purpose("dummy")
                     .copyrightHolder("dummy")
-                    .totalPrice((int) i*10000)
+                    .price((int) i*10000)
                     .priceUnit(PriceUnit.MONTHLY)
                     .maxUserCount(1)
                     .contact("DummyData")
