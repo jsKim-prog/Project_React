@@ -4,6 +4,9 @@ import com.project.it.domain.Member;
 import com.project.it.domain.MemberRole;
 import com.project.it.domain.MemberStatus;
 import com.project.it.dto.MemberDTO;
+import com.project.it.dto.MemberStatusDTO;
+import com.project.it.dto.PageRequestDTO;
+import com.project.it.dto.PageResponseDTO;
 import com.project.it.repository.MemberRepository;
 import com.project.it.repository.MemberStatusRepository;
 import lombok.extern.log4j.Log4j2;
@@ -11,6 +14,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
@@ -23,15 +30,16 @@ public class MemberServiceTests {
 
     @Autowired
     private MemberRepository memberRepository;
-
     @Autowired
     MemberStatusRepository memberStatusRepository;
+
 
     @Autowired
     MemberStatusService memberStatusService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Test
     @DisplayName("패스워드 암호화 테스트")
     void passwordEncode() {
@@ -95,17 +103,20 @@ public class MemberServiceTests {
      //log.info(memberStatus);
         }
 
-        @Test
+    @Test
     public void readone(){
         MemberStatus memberStatus = memberStatusRepository.findByMemberMno(952L);
         log.info(memberStatus);
         }
 
-        @Test
+    @Test
     public void list(){
-        memberStatusService.list();
+        PageRequestDTO pageRequestDTO = new PageRequestDTO();
+        log.info(memberStatusService.getList(pageRequestDTO));
 
-        }
+    }
+
+
 
 
 

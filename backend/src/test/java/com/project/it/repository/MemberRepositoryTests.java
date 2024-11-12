@@ -2,12 +2,15 @@ package com.project.it.repository;
 
 import com.project.it.domain.Member;
 import com.project.it.domain.MemberRole;
+import com.project.it.domain.MemberStatus;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
@@ -19,6 +22,9 @@ public class MemberRepositoryTests {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private MemberStatusRepository memberStatusRepository;
 
 
 
@@ -79,6 +85,16 @@ public class MemberRepositoryTests {
 
 
         memberRepository.save(member);
+
+    }
+
+    @Test
+    public void read(){
+
+        Member member = memberRepository.searchMemberByMno(952L);
+        log.info(member);
+        log.info(member.getMemberRoleList());
+
 
     }
 

@@ -39,6 +39,7 @@ public class Member {
     @Builder.Default
     private List<MemberRole> memberRoleList = new ArrayList<>();
 
+
     // method
     public void changePw(String password){
         this.pw = password;

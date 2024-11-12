@@ -4,15 +4,23 @@ import com.project.it.domain.Member;
 import com.project.it.domain.MemberRole;
 import com.project.it.domain.MemberStatus;
 import com.project.it.dto.MemberStatusDTO;
+import com.project.it.dto.PageRequestDTO;
+import com.project.it.dto.PageResponseDTO;
 import com.project.it.repository.MemberRepository;
 import com.project.it.repository.MemberStatusRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -137,26 +145,65 @@ public class MemberStatusServiceImpl implements MemberStatusService{
         list = memberSR.findAll();
         for(int i = 0; i < count-1; i++ ){
             memberStatus = list.get(i);
+            String memberRole = memberRepository.searchMemberByMno(memberStatus.getMember().getMno()).getMemberRoleList().toString();
             memberStatusDTO = MemberStatusDTO.builder()
                     .email(memberStatus.getMember().getEmail())
-                    .password(memberStatus.getMember().getPw())
-                    .marital_status(memberStatus.getMarital_status())
+                    .mno(memberStatus.getMember().getMno())
+                    .start_date(memberStatus.getMember().getStart_date())
+                    .memberRole(memberRole)
                     .name(memberStatus.getName())
                     .tel(memberStatus.getTel())
-                    .sex(memberStatus.getSex())
-                    .antecedents(memberStatus.getAntecedents())
-                    .qualifications(memberStatus.getQualifications())
                     .birth(memberStatus.getBirth())
-                    .children_count(memberStatus.getChildren_count())
                     .education(memberStatus.getEducation())
-                    .mno(memberStatus.getMno())
                     .build();
             memberList.add(memberStatusDTO);
         }
-        log.info(memberList);
+        log.info("serviceImpl 완료");
 
 
-        return null;
+        return memberList;
+    }
+
+    @Override
+    public PageResponseDTO<MemberStatusDTO> getList(PageRequestDTO pageRequestDTO) {
+        log.info("getList..............");
+
+        Pageable pageable = PageRequest.of(
+                pageRequestDTO.getPage() - 1,  //페이지 시작 번호가 0부터 시작하므로
+                pageRequestDTO.getSize(),
+                Sort.by("mno").descending());
+
+        Page<MemberStatus> result = memberSR.selectList(pageable);
+        List<MemberStatusDTO> list = new ArrayList<>();
+
+        log.info("Page result : " + result.stream().toList().get(0));
+        MemberStatus memberStatus;
+        MemberStatusDTO memberStatusDTO;
+
+        for(int i = 0; i<result.getSize(); i++){
+            memberStatus = result.stream().toList().get(i);
+            String memberRole = memberRepository.searchMemberByMno(memberStatus.getMember().getMno()).getMemberRoleList().toString();
+            memberStatusDTO = MemberStatusDTO.builder()
+                    .email(memberStatus.getMember().getEmail())
+                    .mno(memberStatus.getMember().getMno())
+                    .start_date(memberStatus.getMember().getStart_date())
+                    .memberRole(memberRole)
+                    .name(memberStatus.getName())
+                    .tel(memberStatus.getTel())
+                    .birth(memberStatus.getBirth())
+                    .education(memberStatus.getEducation())
+                    .build();
+            list.add(memberStatusDTO);
+        }
+        long totalCount = result.getTotalElements();
+
+        return PageResponseDTO.<MemberStatusDTO>withAll()
+                .dtoList(list)
+                .totalCount(totalCount)
+                .pageRequestDTO(pageRequestDTO)
+                .build();
+
+
     }
 
 

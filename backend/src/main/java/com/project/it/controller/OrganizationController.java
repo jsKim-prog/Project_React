@@ -1,6 +1,8 @@
 package com.project.it.controller;
 
 import com.project.it.dto.MemberStatusDTO;
+import com.project.it.dto.PageRequestDTO;
+import com.project.it.dto.PageResponseDTO;
 import com.project.it.service.MemberStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -19,12 +21,13 @@ public class OrganizationController {
 
     private final MemberStatusService memberSS;
 
-    @GetMapping
-    public List statusRead(){
+    @GetMapping("")
+    public List listRead(){      
+        return memberSS.list();
+    }
 
-        List<MemberStatusDTO> memberList = new ArrayList<>();
-        memberList = memberSS.list();
-
-        return memberList;
+    @GetMapping("/page")
+    public PageResponseDTO<MemberStatusDTO> pagingList(PageRequestDTO pageRequestDTO){
+        return memberSS.getList(pageRequestDTO);
     }
 }

@@ -1,7 +1,11 @@
 package com.project.it.repository;
 
 import com.project.it.domain.Member;
+import com.project.it.domain.MemberRole;
 import com.project.it.domain.MemberStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +15,17 @@ import org.springframework.stereotype.Repository;
 public interface MemberStatusRepository extends JpaRepository<MemberStatus, String> {
 
     MemberStatus findByMemberMno(Long mno);
+
+    @Query("select ms from MemberStatus ms")
+    Page<MemberStatus> selectList(Pageable pageable);
+
+
+
+
+
+
+
+
 
 
 
