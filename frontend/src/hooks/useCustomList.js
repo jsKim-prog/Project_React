@@ -41,7 +41,7 @@ const useCustomMove = () => {
         }
         setRefresh(!refresh)
         navigate({
-            pathname: "../project",
+            pathname: "../org",
             search: queryStr,
         })
     }

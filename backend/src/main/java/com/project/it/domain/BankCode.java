@@ -1,5 +1,6 @@
 package com.project.it.domain;
 
+
 public enum BankCode {
     TEMP0,
     BOKRKRSE, //한국은행
@@ -34,7 +35,17 @@ public enum BankCode {
     TEMP82,    TEMP83,    TEMP84,    TEMP85,    TEMP86,    TEMP87,
     SHBKKRSE, //신한은행
     TEMP89,
-    CITIKRSXKAK // 카카오뱅크
+    CITIKRSXKAK; // 카카오뱅크
+
+    // 문자열을 enum으로 변환하는 메서드
+    public static BankCode fromString(String role) {
+        for (BankCode r : BankCode.values()) {
+            if (r.name().equalsIgnoreCase(role)) {  // 대소문자 구분 없이 비교
+                return r;
+            }
+        }
+        throw new IllegalArgumentException("Unknown BankCode: " + role);  // 예외 처리
+    }
 
 
 }

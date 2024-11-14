@@ -35,7 +35,7 @@ public class Member {
     @CreatedDate
     private LocalDateTime start_date;
     //입사일
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<MemberRole> memberRoleList = new ArrayList<>();
 

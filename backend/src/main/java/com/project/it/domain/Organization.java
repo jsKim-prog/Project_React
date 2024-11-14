@@ -8,26 +8,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "tbl_organization")
+@Table(name = "member_organization")
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "organizationTeamList")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Organization {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JoinColumn(name="member_mno")
-    private Long mno;
+    private Long oNo;
 
-    @Column(nullable = false)
+    @Column
     private String teamName;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default
     private List<OrganizationTeam> organizationTeamList = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "member_mno")
+    private Member member;
+
+    //method
+    public void addMember(Member member){
+        this.member = member;
+    }
 
     public void addOrganizationTeam(OrganizationTeam organizationTeam){
         organizationTeamList.add(organizationTeam);

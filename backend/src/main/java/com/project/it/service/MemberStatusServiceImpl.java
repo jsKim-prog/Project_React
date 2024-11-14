@@ -1,13 +1,10 @@
 package com.project.it.service;
 
-import com.project.it.domain.Member;
-import com.project.it.domain.MemberRole;
-import com.project.it.domain.MemberStatus;
-import com.project.it.dto.MemberStatusDTO;
-import com.project.it.dto.PageRequestDTO;
-import com.project.it.dto.PageResponseDTO;
+import com.project.it.domain.*;
+import com.project.it.dto.*;
 import com.project.it.repository.MemberRepository;
 import com.project.it.repository.MemberStatusRepository;
+import com.project.it.repository.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -19,8 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +25,8 @@ public class MemberStatusServiceImpl implements MemberStatusService{
     private final MemberStatusRepository memberSR;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final OrganizationRepository orgRepo;
+
 
     @Override
     public String register(MemberStatusDTO R) {
@@ -64,6 +61,16 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                         .build();
 
         log.info(memberS);
+        //회원가입시 기본 팀 정보를 지정
+        Organization organization =
+                Organization.builder()
+                        .teamName("")
+                        .member(member)
+                        .build();
+
+        organization.addOrganizationTeam(OrganizationTeam.AWAIT);//대기
+
+        orgRepo.save(organization);
 
         memberSR.save(memberS);
 
@@ -144,6 +151,7 @@ public class MemberStatusServiceImpl implements MemberStatusService{
         List<MemberStatus> list;
         list = memberSR.findAll();
         for(int i = 0; i < count-1; i++ ){
+
             memberStatus = list.get(i);
             String memberRole = memberRepository.searchMemberByMno(memberStatus.getMember().getMno()).getMemberRoleList().toString();
             memberStatusDTO = MemberStatusDTO.builder()
@@ -182,7 +190,10 @@ public class MemberStatusServiceImpl implements MemberStatusService{
 
         for(int i = 0; i<result.getSize(); i++){
             memberStatus = result.stream().toList().get(i);
-            String memberRole = memberRepository.searchMemberByMno(memberStatus.getMember().getMno()).getMemberRoleList().toString();
+            Member member = memberRepository.searchMemberByMno(memberStatus.getMno());
+            String memberRole = member.getMemberRoleList().get(member.getMemberRoleList().size()-1).toString();
+
+
             memberStatusDTO = MemberStatusDTO.builder()
                     .email(memberStatus.getMember().getEmail())
                     .mno(memberStatus.getMember().getMno())
@@ -202,6 +213,15 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                 .totalCount(totalCount)
                 .pageRequestDTO(pageRequestDTO)
                 .build();
+
+
+    }
+
+    @Override
+    public void modifyMemberRole(MemberTeamDTO mtDTO) {
+        Member member = memberRepository.searchMemberByMno(mtDTO.getMno());
+        member.addRole(MemberRole.fromString(mtDTO.getMemberRole()));
+        memberRepository.save(member);
 
 
     }

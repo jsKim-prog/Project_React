@@ -1,26 +1,17 @@
 package com.project.it.service;
 
-import com.project.it.domain.Member;
-import com.project.it.domain.MemberRole;
-import com.project.it.domain.MemberStatus;
-import com.project.it.dto.MemberDTO;
-import com.project.it.dto.MemberStatusDTO;
-import com.project.it.dto.PageRequestDTO;
-import com.project.it.dto.PageResponseDTO;
+import com.project.it.domain.*;
+import com.project.it.dto.*;
 import com.project.it.repository.MemberRepository;
 import com.project.it.repository.MemberStatusRepository;
+import com.project.it.repository.OrganizationRepository;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -29,16 +20,19 @@ import java.util.List;
 public class MemberServiceTests {
 
     @Autowired
-    private MemberRepository memberRepository;
+    MemberRepository memberRepository;
     @Autowired
     MemberStatusRepository memberStatusRepository;
-
+    @Autowired
+    OrganizationRepository orgRepo;
 
     @Autowired
     MemberStatusService memberStatusService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
 
     @Test
     @DisplayName("패스워드 암호화 테스트")
@@ -116,10 +110,67 @@ public class MemberServiceTests {
 
     }
 
+    @Test
+    public void insertRole(){
+        List<Member> member = memberRepository.findAll();
+        for(int i = 0; i <= member.size()-1; i++){
+//            member.get(i).addRole(MemberRole.INTERN);
+//            memberRepository.save(member.get(i));
+
+            Organization organization = Organization.builder()
+                    .member(member.get(i))
+                    .teamName("")
+                    .build();
+
+            log.info(organization);
+
+            organization.addOrganizationTeam(OrganizationTeam.AWAIT);
+
+            log.info(organization);
+
+            orgRepo.save(organization);
+        }
+
+    }
+
+    @Test
+    public void getOneTest() {
+        Long mno = 1L;
+        MemberStatus memberStatus = memberStatusRepository.findByMemberMno(mno);
+        Member member = memberRepository.searchMemberByMno(mno);
+
+        log.info(memberRepository.searchMemberByMno(mno).getMemberRoleList().get(member.getMemberRoleList().size()-1));
+        log.info(memberStatus);
+
+    }
+
+    @Test
+    public void addRole() {
+        List<Member> member = memberRepository.findAll();
+        for (int i = 0; i <= member.size() - 1; i++) {
+            Long Mno = member.get(i).getMno();
+            Organization organization = orgRepo.findByMemberMno(Mno);
+            organization.addOrganizationTeam(OrganizationTeam.AWAIT);
+            orgRepo.save(organization);
+
+
+        }
+
+    }
+
+    @Test
+    public void memberRoleAddTest(){
+        Member member = memberRepository.searchMemberByMno(1L);
+        log.info(member.getMemberRoleList());
+        member.addRole(MemberRole.fromString("STAFF"));
+        log.info(member.getMemberRoleList());
+        memberRepository.save(member);
 
 
 
 
 
 
+
+    }
 }
