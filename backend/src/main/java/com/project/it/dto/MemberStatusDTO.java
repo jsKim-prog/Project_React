@@ -23,5 +23,9 @@ public class MemberStatusDTO{
     private String qualifications;
     private String education;
     private String antecedents;
+    //팀 정보
+    private String team;
+    private String teamName;
+
 
 }

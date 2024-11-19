@@ -63,15 +63,15 @@ public class MemberRepositoryTests {
 
     @Test
     public void testModify(){
-        String mno = "1";
+        List<Member> memberList = new ArrayList<>();
+        Member member;
 
-        Optional<Member> result = memberRepository.findById(mno);
+        memberList = memberRepository.findAll();
 
-        Member member = result.orElseThrow();
-
-        member.changePw(passwordEncoder.encode("passwordtest"));
-
-        memberRepository.save(member);
+        for(int i = 0; i<=memberList.size()-1; i++){
+            memberList.get(i).setPw(passwordEncoder.encode("test"));
+            memberRepository.save(memberList.get(i));
+        }
     }
 
     @Test

@@ -27,9 +27,22 @@ const useChangeData = () => {
         return teamNameMapping[data] || data;
     };
 
+    const joinStatusMapping = {
+        WAITING: '신규 지원',
+        HOLD: '보류',
+        DISMISSED: '기각',
+        PASSED: '통과',
+    }
+
+    const changeJoinStatus = (data)=>{
+        return joinStatusMapping[data] || data;
+    }
+
     return{
         changeTeamName,
         changeRoleName,
+        changeJoinStatus
+        
     };
 };
 

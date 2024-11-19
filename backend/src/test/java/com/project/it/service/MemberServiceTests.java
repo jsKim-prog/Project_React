@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -166,11 +167,42 @@ public class MemberServiceTests {
         log.info(member.getMemberRoleList());
         memberRepository.save(member);
 
+    }
 
+    @Test
+    public void listTest() {
+        List<MemberStatusDTO> listDTO = new ArrayList<>();
 
+        MemberStatusDTO memberStatusDTO;
+        List<MemberStatus> list = new ArrayList<>();
+        list = memberStatusRepository.findAll();
+        int count = (int)memberStatusRepository.count();
+        MemberStatus memberStatus;
 
+        for(int i = 0; i <= count-1; i++ ){
+            memberStatus = list.get(i);
+            Member member = memberRepository.searchMemberByMno(memberStatus.getMno());
+            String memberRole = member.getMemberRoleList().get(member.getMemberRoleList().size()-1).toString();
+            Organization ot = orgRepo.findByMemberMno(memberStatus.getMno());
+            String team = ot.getOrganizationTeamList().get(ot.getOrganizationTeamList().size()-1).toString();
 
+            memberStatusDTO = MemberStatusDTO.builder()
+                    .email(memberStatus.getMember().getEmail())
+                    .mno(memberStatus.getMember().getMno())
+                    .start_date(memberStatus.getMember().getStart_date())
+                    .memberRole(memberRole)
+                    .name(memberStatus.getName())
+                    .tel(memberStatus.getTel())
+                    .birth(memberStatus.getBirth())
+                    .education(memberStatus.getEducation())
+                    .teamName(ot.getTeamName())
+                    .team(team)
+                    .build();
 
+            listDTO.add(memberStatusDTO);
+        }
+        log.info("serviceImpl 완료");
+        log.info(listDTO);
 
     }
 }

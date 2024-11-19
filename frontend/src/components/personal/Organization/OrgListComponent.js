@@ -1,7 +1,7 @@
 import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
 import { useEffect, useState } from "react";
 import { list } from "../../../api/organizationAPI";
-import OrgOneModal from "./Modal/OrgOneModal";
+import OrgOneModal from "../Modal/OrgOneModal";
 import useCustomMove from "../../../hooks/useCustomList";
 import PageComponent from "../../common/PageComponent";
 import useChangeData from "../../../hooks/useChangeData";
@@ -67,18 +67,17 @@ const OrgListComponent = () => {
       />
       <Card>
         <CardBody>
-          <CardTitle tag="h5" className="align-middle"> 사원 명부 </CardTitle>
-          <CardSubtitle className="mb-2 text-muted align-middle" tag="h6">
-            사원 명부
-          </CardSubtitle>
+          <CardTitle tag="h5" className="align-middle"> 사원 명부 </CardTitle>          
 
           <Table className="no-wrap mt-3 align-middle" responsive borderless>
             <thead>
               <tr>
                 <th> 사원번호 </th>
                 <th>  이  름 </th>
-                <th> 직  위 </th>
-                <th> e-mail </th>
+                <th>
+                   직  위                  
+                </th>
+                <th> 부  서 </th>
                 <th> 입사일 </th>
               </tr>
             </thead>
@@ -99,7 +98,7 @@ const OrgListComponent = () => {
                   </td>
                   <td>{member.name}</td>
                   <td>{changeRoleName(member.memberRole)}</td>
-                  <td>{member.email}</td>
+                  <td>{changeTeamName(member.team)} {member.teamName}</td>
                   <td>{member.start_date}</td>
                 </tr>                
               ))}

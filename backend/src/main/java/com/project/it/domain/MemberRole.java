@@ -3,6 +3,8 @@ package com.project.it.domain;
 
 import jakarta.persistence.Id;
 
+import java.util.Arrays;
+
 
 public enum MemberRole {
     CONTRACT_WORKER,            // 계약직

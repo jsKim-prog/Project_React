@@ -1,16 +1,12 @@
 package com.project.it.controller;
 
-import com.project.it.dto.MemberStatusDTO;
-import com.project.it.dto.MemberTeamDTO;
-import com.project.it.dto.PageRequestDTO;
-import com.project.it.dto.PageResponseDTO;
+import com.project.it.dto.*;
 import com.project.it.service.MemberOrganizationService;
 import com.project.it.service.MemberStatusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +18,7 @@ public class OrganizationController {
 
     private final MemberStatusService memberSS;
     private final MemberOrganizationService memberOS;
+
 
     @GetMapping("")
     public List listRead(){      
@@ -51,4 +48,6 @@ public class OrganizationController {
 
         return Map.of("RESULT", msg);
     }
+
+
 }

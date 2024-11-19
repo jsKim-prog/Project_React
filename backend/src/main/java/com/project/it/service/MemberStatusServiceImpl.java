@@ -85,6 +85,10 @@ public class MemberStatusServiceImpl implements MemberStatusService{
         MemberStatus memberStatus = memberSR.findByMemberMno(member.getMno());
 
 
+        Organization ot = orgRepo.findByMemberMno(memberStatus.getMno());
+        String team = ot.getOrganizationTeamList().get(ot.getOrganizationTeamList().size()-1).toString();
+
+
         log.info(memberStatus);
 
         return MemberStatusDTO.builder()
@@ -100,6 +104,8 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                 .children_count(memberStatus.getChildren_count())
                 .education(memberStatus.getEducation())
                 .mno(memberStatus.getMno())
+                .team(team)
+                .teamName(ot.getTeamName())
                 .build();
     }
 
@@ -119,8 +125,6 @@ public class MemberStatusServiceImpl implements MemberStatusService{
 
         MemberStatus memberSB = memberSR.findByMemberMno(member.getMno());
         log.info("member 수정 후 memberSB 구하기" + memberSB);
-
-
 
         MemberStatus memberS = MemberStatus.builder()
                         .mno(memberSB.getMno())
@@ -144,16 +148,22 @@ public class MemberStatusServiceImpl implements MemberStatusService{
 
     @Override
     public List<MemberStatusDTO> list() {
-        List<MemberStatusDTO> memberList = new ArrayList<>();
-        int count = (int)memberSR.count();
-        MemberStatusDTO memberStatusDTO;
-        MemberStatus memberStatus;
-        List<MemberStatus> list;
-        list = memberSR.findAll();
-        for(int i = 0; i < count-1; i++ ){
+        List<MemberStatusDTO> listDTO = new ArrayList<>();
 
+
+        MemberStatusDTO memberStatusDTO;
+        List<MemberStatus> list = new ArrayList<>();
+        list = memberSR.findAll();
+        int count = (int)memberSR.count();
+        MemberStatus memberStatus;
+
+        for(int i = 0; i <= count-1; i++ ){
             memberStatus = list.get(i);
-            String memberRole = memberRepository.searchMemberByMno(memberStatus.getMember().getMno()).getMemberRoleList().toString();
+            Member member = memberRepository.searchMemberByMno(memberStatus.getMno());
+            String memberRole = member.getMemberRoleList().get(member.getMemberRoleList().size()-1).toString();
+            Organization ot = orgRepo.findByMemberMno(memberStatus.getMno());
+            String team = ot.getOrganizationTeamList().get(ot.getOrganizationTeamList().size()-1).toString();
+
             memberStatusDTO = MemberStatusDTO.builder()
                     .email(memberStatus.getMember().getEmail())
                     .mno(memberStatus.getMember().getMno())
@@ -163,13 +173,15 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                     .tel(memberStatus.getTel())
                     .birth(memberStatus.getBirth())
                     .education(memberStatus.getEducation())
+                    .teamName(ot.getTeamName())
+                    .team(team)
                     .build();
-            memberList.add(memberStatusDTO);
+
+            listDTO.add(memberStatusDTO);
         }
         log.info("serviceImpl 완료");
 
-
-        return memberList;
+        return listDTO;
     }
 
     @Override
@@ -192,6 +204,8 @@ public class MemberStatusServiceImpl implements MemberStatusService{
             memberStatus = result.stream().toList().get(i);
             Member member = memberRepository.searchMemberByMno(memberStatus.getMno());
             String memberRole = member.getMemberRoleList().get(member.getMemberRoleList().size()-1).toString();
+            Organization ot = orgRepo.findByMemberMno(memberStatus.getMno());
+            String team = ot.getOrganizationTeamList().get(ot.getOrganizationTeamList().size()-1).toString();
 
 
             memberStatusDTO = MemberStatusDTO.builder()
@@ -203,6 +217,8 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                     .tel(memberStatus.getTel())
                     .birth(memberStatus.getBirth())
                     .education(memberStatus.getEducation())
+                    .teamName(ot.getTeamName())
+                    .team(team)
                     .build();
             list.add(memberStatusDTO);
         }

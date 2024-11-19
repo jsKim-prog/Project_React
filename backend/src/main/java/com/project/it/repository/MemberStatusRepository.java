@@ -16,7 +16,7 @@ public interface MemberStatusRepository extends JpaRepository<MemberStatus, Stri
 
     MemberStatus findByMemberMno(Long mno);
 
-    @Query("select ms from MemberStatus ms order by ")
+    @Query("select ms from MemberStatus ms order by ms.mno asc")
     Page<MemberStatus> selectList(Pageable pageable);
 
 

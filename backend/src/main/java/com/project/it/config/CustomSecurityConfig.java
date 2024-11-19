@@ -63,7 +63,7 @@ public class CustomSecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE"));
 
         // 허용할 헤더 설정
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Context-Type"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cac.0he-Control", "Context-Type"));
 
         // 자격 증명 포함 요청을 허용하는 설정
         configuration.setAllowCredentials(true);

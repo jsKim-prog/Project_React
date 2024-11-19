@@ -4,6 +4,9 @@ package com.project.it.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "tbl_memberBank")
 @Getter
@@ -14,8 +17,9 @@ import lombok.*;
 @NoArgsConstructor
 public class MemberBank {
 
-
-    private BankCode bank_code;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<BankCode> bank_code_List = new ArrayList<>();
     // 은행별 코드
     private String account;
     // 계좌
@@ -24,6 +28,9 @@ public class MemberBank {
     @Id
     @JoinColumn(name="member_mno")
     private Long mno;
+
+    @ManyToOne
+    private Member member;
 
 
 }

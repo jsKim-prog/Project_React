@@ -5,6 +5,7 @@ import { loginPostAsync, logout } from "../slices/loginSlice"
 const useCustomLogin = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    
     const loginState = useSelector(state => state.loginSlice) // 로그인 상태
     const isLogin = loginState.email ? true : false // 로그인 여부
     const doLogin = async(loginParam) => {//로그인 횟수
@@ -18,6 +19,7 @@ const useCustomLogin = () => {
     
     const moveToPath = (path) => { //페이지 이동
         navigate({pathname: path}, {replace:true})
+        
     }
 
     const moveToLogin = () => { // 로그인 페이지로 이동
