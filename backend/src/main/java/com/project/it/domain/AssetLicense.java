@@ -2,6 +2,7 @@ package com.project.it.domain;
 
 import com.project.it.constant.ContractStatus;
 import com.project.it.constant.RightType;
+import com.project.it.constant.UsePurpose;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -26,7 +27,8 @@ public class AssetLicense {
     private Long ano; //관리번호
 
     @Enumerated(EnumType.STRING)
-    private RightType type; //권리유형 : 자사특허, (타사)사용권
+    @Column(name = "rightType")
+    private RightType rightType; //권리유형 : 자사특허, (타사)사용권
 
     @Enumerated(EnumType.STRING)
     private ContractStatus contractStatus; //계약구분(신규, 재계약, 갱신..)
@@ -34,6 +36,9 @@ public class AssetLicense {
     private LocalDate expireDate; //만료일
     private int contractCount; //상품구입 개수
     private int totalPrice; //구입총액(count*contractCount)
+
+   @Enumerated(EnumType.STRING)
+    private UsePurpose usePurpose; //사용목적
 
     @Lob
     private String comment; //기타 설명
@@ -46,13 +51,11 @@ public class AssetLicense {
     private int totalUseCount; //총 사용가능 개수(maxcount*contractCount)
     private int currentUseCount ; //현재 사용중 개수
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "license_id")
     private InfoLicense license; //관련 라이선스 상품
     
     private int fileCount; //첨부파일 개수
-
-
 
     //Method
     public void changeComment(String comment){

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,14 +39,30 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
     private final String category = "license";
 
     @Override //C : 등록(File 등록 같이)
-    public Long register(AssetLicenseDTO assetLicenseDTO) {
+    public Long register(AssetLicenseIPDTO assetLicenseIPDTO) {
+        //Info 먼저 찾기
+        Optional<InfoLicense> result = infoLicenseRepository.findById(assetLicenseIPDTO.getLicenseId());
+
+        log.info("assetService=========받은 licenseId : "+assetLicenseIPDTO.getLicenseId());
+        InfoLicense infoLicense = result.orElseThrow(EntityExistsException::new);
         //ano 획득-> asset 선등록
-        AssetLicense entity = dtoToEntity(assetLicenseDTO);
+        AssetLicense entity = AssetLicense.builder()
+                .rightType(assetLicenseIPDTO.getRightType())
+                .usePurpose(assetLicenseIPDTO.getUsePurpose())
+                .contractStatus(assetLicenseIPDTO.getContractStatus())
+                .contractDate(assetLicenseIPDTO.getContractDate())
+                .expireDate(assetLicenseIPDTO.getExpireDate())
+                .contractCount(assetLicenseIPDTO.getContractCount())
+                .totalPrice(assetLicenseIPDTO.getTotalPrice())
+                .comment(assetLicenseIPDTO.getComment())
+                .fileCount(assetLicenseIPDTO.getFileCount())
+                .license(infoLicense)
+                .build();
         assetLicenseRepository.save(entity);
         Long ano = entity.getAno();
         //파일저장 및 DTO 리스트 획득
-        List<MultipartFile> files = assetLicenseDTO.getFiles();
-        assetLicenseDTO.setFileCount(files.size()); //**파일개수 세팅
+        List<MultipartFile> files = assetLicenseIPDTO.getFiles();
+
         List<FileUploadDTO> fileUploadDTOS = fileUtil.saveFiles(files, category, ano);//폴더생성 및 실제파일 저장
         //entity 변환 및 file db 저장
         fileUploadDTOS.forEach(dto->{
@@ -54,7 +71,6 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
             saveFile.setAssetNum(ano);
             fileRepository.save(saveFile);
         });
-        
         return ano;
     }
 
@@ -64,21 +80,23 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
         Optional<AssetLicense> entity = assetLicenseRepository.findById(ano);
         AssetLicense asset = entity.orElseThrow(EntityExistsException::new);
         //파일찾기
-        List<FileUploadDTO> files = fileRepository.findAssetFileList(category, asset.getAno());
+        List<FileUploadDTO> files = fileRepository.findAssetFileList(category, ano);
+        log.info("serviceOne++++++++files:"+files);
         //getOne용 별도 DTO
         AssetLicenseOneDTO dto = AssetLicenseOneDTO.builder()
                 .ano(asset.getAno())
                 .rightName(asset.getLicense().getRightName())
-                .purpose(asset.getLicense().getPurpose())
-                .type(asset.getType())
-                .contractStatus(asset.getContractStatus())
+                .rightType(asset.getRightType().getDesc())
+                .contractStatus(asset.getContractStatus().getDesc())
+                .usePurpose(asset.getUsePurpose().getDesc())
                 .contractDate(asset.getContractDate())
                 .expireDate(asset.getExpireDate())
                 .contractCount(asset.getContractCount())
                 .comment(asset.getComment())
                 .expireYN(asset.isExpireYN())
                 .totalPrice(asset.getTotalPrice())
-                .priceUnit(asset.getLicense().getPriceUnit())
+                .price(asset.getLicense().getPrice())
+                .priceUnit(asset.getLicense().getPriceUnit().getDesc())
                 .maxUserCount(asset.getLicense().getMaxUserCount())
                 .totalUseCount(asset.getTotalUseCount())
                 .currentUseCount(asset.getCurrentUseCount())
@@ -91,16 +109,16 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
     }
 
     @Override  //R_all : 라이선스(asset) 리스트+ file 개수
-    public PageResponseDTO<AssetLicenseListDTO> getList(PageRequestDTO pageRequestDTO) {
+    public PageResponseDTO<AssetLicenseListOPDTO> getList(PageRequestDTO pageRequestDTO) {
         Pageable pageable = PageRequest.of(pageRequestDTO.getPage()-1, pageRequestDTO.getSize(), Sort.by("ano").descending());
         //select asset, count(files) -> Object[Asset(EN), FilesCount(int)]
         Page<AssetLicense> result = assetLicenseRepository.getList(pageable);
-        List<AssetLicenseListDTO> dtoList = result.get().map(asset->{
-            AssetLicenseListDTO dto = AssetLicenseListDTO.builder()
+        List<AssetLicenseListOPDTO> dtoList = result.get().map(asset->{
+            AssetLicenseListOPDTO dto = AssetLicenseListOPDTO.builder()
                     .ano(asset.getAno())
-                    .type(asset.getType())
+                    .rightType(asset.getRightType().getDesc())
                     .rightName(asset.getLicense().getRightName())
-                    .purpose(asset.getLicense().getPurpose())
+                    .usePurpose(asset.getUsePurpose().getDesc())
                     .currentUseCount(asset.getCurrentUseCount())
                     .totalUseCount(asset.getTotalUseCount())
                     .expireDate(asset.getExpireDate())
@@ -110,26 +128,26 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
         }).collect(Collectors.toList());
         long totalCount = result.getTotalElements();
 
-        return PageResponseDTO.<AssetLicenseListDTO>withAll().dtoList(dtoList).pageRequestDTO(pageRequestDTO).totalCount(totalCount).build();
+        return PageResponseDTO.<AssetLicenseListOPDTO>withAll().dtoList(dtoList).pageRequestDTO(pageRequestDTO).totalCount(totalCount).build();
     }
 
     @Override  //U : 라이선스 관리 정보 변경
-    public void update(AssetLicenseDTO assetLicenseDTO) {
+    public void update(AssetLicenseIPDTO assetLicenseIPDTO) {
        //asset 변경
-        Optional<AssetLicense> result = assetLicenseRepository.findById(assetLicenseDTO.getAno());
+        Optional<AssetLicense> result = assetLicenseRepository.findById(assetLicenseIPDTO.getAno());
         AssetLicense findEntity = result.orElseThrow(EntityExistsException::new);
-        findEntity.changeComment(assetLicenseDTO.getComment());
+        findEntity.changeComment(assetLicenseIPDTO.getComment());
         findEntity.changeDeleteState(true);
 
         assetLicenseRepository.save(findEntity);
 
         //첨부파일 변경
-        List<MultipartFile> files = assetLicenseDTO.getFiles();
-        assetLicenseDTO.setFileCount(files.size()); //**변경파일개수 등록
+        List<MultipartFile> files = assetLicenseIPDTO.getFiles();
+        assetLicenseIPDTO.setFileCount(files.size()); //**변경파일개수 등록
         if (files==null||files.size()==0){//변경사항이 없다면
         return;
         }
-        List<FileUploadDTO> newFiles = fileUtil.updateFiles(files, category, assetLicenseDTO.getAno()); //util -> 새로 등록할 파일 리스트만 리턴(기존 파일 삭제, 신규파일 저장 완료)
+        List<FileUploadDTO> newFiles = fileUtil.updateFiles(files, category, assetLicenseIPDTO.getAno()); //util -> 새로 등록할 파일 리스트만 리턴(기존 파일 삭제, 신규파일 저장 완료)
         //신규파일 db 저장
         newFiles.forEach(newFile ->{
             FileUpload entity = modelMapper.map(newFile, FileUpload.class);
@@ -156,38 +174,26 @@ public class AssetLicenseServiceImpl implements AssetLicenseService{
         }); //db 리스트 삭제
     }
 
-    //변환메서드
-    private AssetLicenseDTO entityToDto(AssetLicense entity){
-        AssetLicenseDTO dto = AssetLicenseDTO.builder()
-                .ano(entity.getAno())
-                .type(entity.getType())
-                .contractStatus(entity.getContractStatus())
-                .contractDate(entity.getContractDate())
-                .expireDate(entity.getExpireDate())
-                .contractCount(entity.getContractCount())
-                .comment(entity.getComment())
-                .expireYN(entity.isExpireYN())
-                .licenseId(entity.getLicense().getLno())
-                .totalUseCount(entity.getTotalUseCount())
-                .currentUseCount(entity.getCurrentUseCount())
-                .build();
-        return dto;
+    @Override
+    public List<AssetLicenseListOPDTO> getOnlyList() {
+        List<AssetLicense> entityList = assetLicenseRepository.findAll();
+        List<AssetLicenseListOPDTO> sendList = new ArrayList<>();
+        entityList.forEach(entity->{
+            AssetLicenseListOPDTO dto = AssetLicenseListOPDTO.builder()
+                    .ano(entity.getAno())
+                    .rightType(entity.getRightType().getDesc())
+                    .rightName(entity.getLicense().getRightName())
+                    .usePurpose(entity.getUsePurpose().getDesc())
+                    .currentUseCount(entity.getCurrentUseCount())
+                    .totalUseCount(entity.getTotalUseCount())
+                    .expireDate(entity.getExpireDate())
+                    .fileCount(entity.getFileCount())
+                    .build();
+            sendList.add(dto);
+        });
+        return sendList;
     }
 
-    private AssetLicense dtoToEntity(AssetLicenseDTO dto){
-        Optional<InfoLicense> result = infoLicenseRepository.findById(dto.getLicenseId());
-        InfoLicense license = result.orElseThrow(EntityExistsException::new);
-        AssetLicense entity = AssetLicense.builder()
-                .type(dto.getType())
-                .contractStatus(dto.getContractStatus())
-                .contractDate(dto.getContractDate())
-                .expireDate(dto.getExpireDate())
-                .contractCount(dto.getContractCount())
-                .comment(dto.getComment())
-                .license(license)
-                .fileCount(dto.getFileCount())
-                .build();
-        return entity;
-    }
+
    
 }

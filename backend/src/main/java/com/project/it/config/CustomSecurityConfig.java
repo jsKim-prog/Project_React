@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,21 +29,7 @@ public class CustomSecurityConfig {
             httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource());
         });
         //CSRF 설정
-        http.sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); //STATELESS :(무상태)서버내부에서 세션 생성하지 않도록 설정
-        http.csrf(config -> config.disable());
-        //API 로그인 설정
-       /* http.formLogin(config -> {
-            config.loginPage("/api/member/login");  //POST
-            config.successHandler(new APILoginSuccessHandler()); //로그인 성공시 후처리(custom)
-            config.failureHandler(new APILoginFailHandler()); //로그인 실패시 후처리(custom)
-        });
-        //Access Token Check filter(jwt 체크)
-        //http.addFilterBefore(new JWTCheckFilter(), UsernamePasswordAuthenticationFilter.class);
-        //접근제한 시 예외처리
-        http.exceptionHandling(config ->{
-            config.accessDeniedHandler(new CustomAccessDeniedHandler());
-        });*/
-
+        http.csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 

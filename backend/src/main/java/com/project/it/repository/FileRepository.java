@@ -10,7 +10,9 @@ import java.util.List;
 
 public interface FileRepository extends JpaRepository<FileUpload, Long> {
     //파일리스트 검색-category+assetNum
-    @Query("select files from FileUpload files where files.category=:category and files.assetNum=:assetNum")
+
+
+    @Query("select new com.project.it.dto.FileUploadDTO(f.fno, f.category, f.assetNum, f.originFileName, f.saveFileName, f.folderPath, f.size, f.deleteOrNot) from FileUpload f where f.category=:category and f.assetNum=:assetNum")
     List<FileUploadDTO> findAssetFileList(@Param("category") String category, @Param("assetNum") Long assetNum);
 
     //삭제처리

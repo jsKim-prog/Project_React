@@ -2,12 +2,16 @@ package com.project.it.service;
 
 import com.project.it.constant.ComputerType;
 
+import com.project.it.domain.InfoComputer;
+import com.project.it.dto.AssetComputerDTO;
 import com.project.it.dto.InfoComputerDTO;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -61,6 +65,30 @@ public class ComputerServiceTests {
         LongStream.rangeClosed(1L, 8L).forEach(i->{
             serviceInfo.remove(i);
         });
+    }
+
+    @Test
+    public void insertAssetTest(){
+        InfoComputerDTO infoComputerDTO = serviceInfo.getOne(5L);
+        log.info(infoComputerDTO);
+
+      AssetComputerDTO assetComputerDTO = AssetComputerDTO.builder()
+                .cino(infoComputerDTO.getCino())
+                .productName(infoComputerDTO.getProductName())
+                .price(infoComputerDTO.getPrice())
+                .purpose("디자인용")
+                .contractCount(2)
+                .totalPrice(infoComputerDTO.getPrice()*2)
+                .contractDate(LocalDate.now())
+                .build();
+        serviceAsset.register(assetComputerDTO);
+        Long newCno = assetComputerDTO.getCno();
+        log.info("--------------등록 cno"+newCno);
+    }
+
+    @Test
+    public void deleteAllAssetTest(){
+        serviceAsset.removeForever(1L);
     }
 
 }

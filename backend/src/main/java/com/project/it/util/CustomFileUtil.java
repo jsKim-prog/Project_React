@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 public class CustomFileUtil { //공통 파일 처리
     @Value("${fileLocation}")
     private String uploadPath;
+
     @Value("${businessFileLocation}")
     private String path_business; //고객사 관련 파일 폴더
     @Value("${licenseFileLocation}")
@@ -77,19 +78,20 @@ public class CustomFileUtil { //공통 파일 처리
         //폴더 생성
         String myPath = makeSavePath(category, assetNum);
         log.info("저장경로 : " + myPath);
+        String saveFolderPath = category+"/"+assetNum;
         //dto
         List<FileUploadDTO> uploadDTOS = new ArrayList<>();
         for (MultipartFile multipartFile : files) {
             String saveName = makeSaveFileName(Objects.requireNonNull(multipartFile.getOriginalFilename()));
             Path savePath = Paths.get(myPath, saveName);
-            FileUploadDTO fileUploadDTO = FileUploadDTO.builder()
-                    .assetNum(assetNum)
-                    .category(category)
-                    .originFileName(multipartFile.getOriginalFilename())
-                    .saveFileName(saveName)
-                    .folderPath(myPath)
-                    .size(multipartFile.getSize())
-                    .build();
+            FileUploadDTO fileUploadDTO = new FileUploadDTO();
+            fileUploadDTO.setCategory(category);
+            fileUploadDTO.setAssetNum(assetNum);
+            fileUploadDTO.setOriginFileName(multipartFile.getOriginalFilename());
+            fileUploadDTO.setSaveFileName(saveName);
+            fileUploadDTO.setFolderPath(saveFolderPath);
+            fileUploadDTO.setSize(multipartFile.getSize());
+
             uploadDTOS.add(fileUploadDTO); //db 저장할 dto list 준비
             try {
                 Files.copy(multipartFile.getInputStream(), savePath); //파일저장
@@ -102,9 +104,12 @@ public class CustomFileUtil { //공통 파일 처리
 
     //파일불러오기
     public ResponseEntity<Resource> getFile(FileUploadDTO fileUploadDTO) {
-        String savedPath = fileUploadDTO.getFolderPath();
+        String savedPath = fileUploadDTO.getFolderPath();//category+assetNum
         String fileName = fileUploadDTO.getSaveFileName();
-        Resource resource = new FileSystemResource(savedPath + File.separator + fileName);
+        String fullPath = File.separator +savedPath + File.separator + fileName;
+        Path filePath = Paths.get(uploadPath+File.separator+fullPath);
+        log.info("FileUtil+++++++filePATH : "+ filePath);
+        Resource resource = new FileSystemResource(filePath);
         if (!resource.isReadable()) {
             resource = new FileSystemResource(uploadPath + File.separator + "default.jpeg");
         }

@@ -2,6 +2,8 @@ package com.project.it.service;
 
 import com.project.it.dto.*;
 
+import java.util.List;
+
 public interface AssetComputerService {
     //등록
     Long register(AssetComputerDTO assetComputerDTO);
@@ -15,6 +17,9 @@ public interface AssetComputerService {
     void remove(Long cno);
     //삭제
     void removeForever(Long cno);
+
+    //리스트-nopaging
+    List<AssetComputerOneDTO> getOnlyList();
     
     
     

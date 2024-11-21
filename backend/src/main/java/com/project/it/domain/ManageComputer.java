@@ -20,7 +20,7 @@ public class ManageComputer { //컴퓨터 사용리스트
     private String pcIp; //ip
     private boolean useYN; //사용중 여부
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assetComputer_id")
     private AssetComputer assetComputer; //컴퓨터 계약정보(info정보 포함)
     

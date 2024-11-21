@@ -31,7 +31,7 @@ public class AssetComputer { //컴퓨터 구입관리
     @ColumnDefault("false")
     private boolean deleteOrNot; //삭제처리용
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "infoComputer_id")
     private InfoComputer infoComputer;
 

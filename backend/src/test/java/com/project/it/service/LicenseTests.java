@@ -3,10 +3,12 @@ package com.project.it.service;
 import com.project.it.constant.ContractStatus;
 import com.project.it.constant.PriceUnit;
 import com.project.it.constant.RightType;
+import com.project.it.constant.UsePurpose;
 import com.project.it.dto.*;
 import com.project.it.util.CustomFileUtil;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -28,6 +30,10 @@ public class LicenseTests {
     private AssetLicenseService serviceAsset;
     @Autowired
     private CustomFileUtil fileUtil;
+    @Autowired
+    private ModelMapper modelMapper;
+
+
 
     //고객사 등록(Dummy)
     @Test
@@ -51,7 +57,7 @@ public class LicenseTests {
     //라이선스 -info등록
     @Test
     public void insertInfoLicenseTest(){
-        InfoLicenseDTO dto1 = InfoLicenseDTO.builder()
+        InfoLicenseIPDTO dto1 = InfoLicenseIPDTO.builder()
                 .rightName("IntelliJ IDEA Ultimate")
                 .version("IntelliJ IDEA")
                 .purpose("programming")
@@ -62,7 +68,7 @@ public class LicenseTests {
                 .contact("https://www.jetbrains.com/ko-kr/idea/buy/?section=commercial&billing=yearly")
                 .build();
 
-        InfoLicenseDTO dto2 = InfoLicenseDTO.builder()
+        InfoLicenseIPDTO dto2 = InfoLicenseIPDTO.builder()
                 .rightName("Adobe Creative Cloud")
                 .version("Creative Cloud")
                 .purpose("design")
@@ -82,9 +88,9 @@ public class LicenseTests {
     @Test
     public void infoDummyInsertTest(){
         DecimalFormat fourNum = new DecimalFormat("0000");
-        List<InfoLicenseDTO> list = new ArrayList<>();
+        List<InfoLicenseIPDTO> list = new ArrayList<>();
         LongStream.rangeClosed(1, 10).forEach(i->{
-            InfoLicenseDTO dto = InfoLicenseDTO.builder()
+            InfoLicenseIPDTO dto = InfoLicenseIPDTO.builder()
                     .rightName("라이선스"+fourNum.format(i))
                     .version("version"+i)
                     .purpose("dummy")
@@ -97,13 +103,14 @@ public class LicenseTests {
             serviceInfo.register(dto);
             list.add(dto);
         });
-        list.forEach(infoLicenseDTO -> log.info(infoLicenseDTO));
+        list.forEach(infoLicenseIPDTO -> log.info(infoLicenseIPDTO));
     }
 
     //info 수정
     @Test
     public void modInfoLicense(){
-        InfoLicenseDTO modinfo = serviceInfo.getOne(2L);
+        InfoLicenseOPDTO findInfo = serviceInfo.getOne(2L);
+        InfoLicenseIPDTO modinfo = modelMapper.map(findInfo, InfoLicenseIPDTO.class);
         modinfo.setPriceUnit(PriceUnit.MONTHLY);
         serviceInfo.update(modinfo);
         log.info(modinfo);
@@ -112,14 +119,16 @@ public class LicenseTests {
     //Asset 등록
     @Test
     public void insertAssetTest(){
-      //  InfoLicenseDTO infoDto = serviceInfo.getOne(1L);
+       InfoLicenseOPDTO insertInfo = serviceInfo.getOne(1L);
         LocalDate today = LocalDate.now();
-        AssetLicenseDTO dto = AssetLicenseDTO.builder()
-                .type(RightType.LICENSE)
+        AssetLicenseIPDTO dto = AssetLicenseIPDTO.builder()
+                .rightType(RightType.LICENSE)
+                .usePurpose(UsePurpose.DEVELOPMENT)
                 .contractStatus(ContractStatus.NEW)
                 .contractCount(5)
                 .contractDate(today)
                 .expireDate(today.plusYears(1L))
+                .totalPrice(insertInfo.getPrice()*5)
                 .licenseId(1L)
                 .build();
         serviceAsset.register(dto);
@@ -131,17 +140,18 @@ public class LicenseTests {
     public void assetDummyInsertTest(){
         //DecimalFormat fourNum = new DecimalFormat("0000");
         LocalDate today = LocalDate.now();
-        List<AssetLicenseDTO> list = new ArrayList<>();
-        IntStream.rangeClosed(1, 5).forEach(i->{
-            Long licenseID  = (long)i ;
-            log.info("randomID : "+licenseID);
-            AssetLicenseDTO dto = AssetLicenseDTO.builder()
-                    .type(RightType.LICENSE)
+        List<AssetLicenseIPDTO> list = new ArrayList<>();
+        LongStream.rangeClosed(1L, 5L).forEach(i->{
+
+            AssetLicenseIPDTO dto = AssetLicenseIPDTO.builder()
+                    .rightType(RightType.LICENSE)
+                    .usePurpose(UsePurpose.ETC)
                     .contractStatus(ContractStatus.NEW)
-                    .contractCount(5+i)
+                    .contractCount(5+(int)i)
+                    .totalPrice((5+(int)i)*10000)
                     .contractDate(today)
                     .expireDate(today.plusMonths(1L))
-                    .licenseId(licenseID)
+                    .licenseId(i)
                     .build();
             serviceAsset.register(dto);
             list.add(dto);
@@ -157,12 +167,21 @@ public class LicenseTests {
         requestDTO.setPage(1);
         requestDTO.setSize(5);
         serviceAsset.getList(requestDTO);
-        PageResponseDTO<AssetLicenseListDTO> assetList = serviceAsset.getList(requestDTO);
-        List<AssetLicenseListDTO> list = assetList.getDtoList();
+        PageResponseDTO<AssetLicenseListOPDTO> assetList = serviceAsset.getList(requestDTO);
+        List<AssetLicenseListOPDTO> list = assetList.getDtoList();
         log.info("리스트 개수 : "+list.size());
         list.forEach(asset->{
             log.info(asset);
         });
+    }
+
+    //enum test
+    @Test
+    public void eunmInsertTest(){
+        String desc = "인";
+
+
+        log.info("=======출력결과 : ");
     }
 
 

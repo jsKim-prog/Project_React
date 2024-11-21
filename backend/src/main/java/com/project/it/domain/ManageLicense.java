@@ -22,7 +22,7 @@ public class ManageLicense extends BaseEntity{
     
     private boolean deleteOrNot; //(문서)삭제처리 여부
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn( name = "asset_id")
     private AssetLicense assetLicense; //라이센스 정보(계약한 건)
 

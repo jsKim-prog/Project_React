@@ -24,6 +24,8 @@ public class InfoPartners { //협력사 등 회사 정보 저장용
     private String address;
     private String bizType;
 
+    private String ceoName;
+
 
     //변경용 method
     public void changeComName(String comName){

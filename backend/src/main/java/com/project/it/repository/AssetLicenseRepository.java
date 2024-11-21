@@ -1,20 +1,17 @@
 package com.project.it.repository;
 
 import com.project.it.domain.AssetLicense;
-import com.project.it.dto.AssetLicenseDTO;
-import com.project.it.dto.AssetLicenseListDTO;
+import com.project.it.dto.AssetLicenseIPDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
-
 public interface AssetLicenseRepository extends JpaRepository<AssetLicense, Long> {
     //R_one : 라이선스 정보 하나만 가져오기 + file 리스트
     @Query("select asset, files from AssetLicense asset left join FileUpload files on  files.category='license' and  asset.ano=files.assetNum where asset.ano=:ano")
-    AssetLicenseDTO findByAnoWithFiles(@Param("ano") Long ano);
+    AssetLicenseIPDTO findByAnoWithFiles(@Param("ano") Long ano);
 
     //R_all : 라이선스(asset) 리스트
     @Query("select asset from AssetLicense asset where asset.deleteOrNot=false ")

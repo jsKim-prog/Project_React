@@ -21,9 +21,9 @@ public class LicenseController {
     /* info license ----------------------------------------------------------------*/
     //등록 : info license
     @PostMapping("/info")
-    public Map<String, Long> registerInfo(InfoLicenseDTO infoLicenseDTO){
-        log.info("(Controller)license info register 실행====등록할 파일 : " + infoLicenseDTO);
-        Long lno = infoService.register(infoLicenseDTO);
+    public Map<String, Long> registerInfo(InfoLicenseIPDTO infoLicenseIPDTO){
+        log.info("(Controller)license info register 실행====등록할 파일 : " + infoLicenseIPDTO);
+        Long lno = infoService.register(infoLicenseIPDTO);
 
         return Map.of("result", lno);
     }
@@ -31,22 +31,22 @@ public class LicenseController {
 
     //조회 one : info license
     @GetMapping("/info/{lno}")
-    public InfoLicenseDTO readInfo(@PathVariable(name = "lno") Long lno){
+    public InfoLicenseOPDTO readInfo(@PathVariable(name = "lno") Long lno){
         return infoService.getOne(lno);
     }
 
     //조회 all : info license
     @GetMapping("/info")
-    public PageResponseDTO<InfoLicenseDTO> listInfo(PageRequestDTO pageRequestDTO){
+    public PageResponseDTO<InfoLicenseOPDTO> listInfo(PageRequestDTO pageRequestDTO){
 
         return infoService.getListWithPage(pageRequestDTO);
     }
 
     //변경 :info license
     @PutMapping("/info/{lno}")
-    public Map<String, String> modifyInfo(@PathVariable("lno") Long lno, InfoLicenseDTO infoLicenseDTO){
-        infoLicenseDTO.setLno(lno);
-        infoService.update(infoLicenseDTO);
+    public Map<String, String> modifyInfo(@PathVariable("lno") Long lno, InfoLicenseIPDTO infoLicenseIPDTO){
+        infoLicenseIPDTO.setLno(lno);
+        infoService.update(infoLicenseIPDTO);
         return Map.of("RESULT", "SUCCESS");
     }
     //삭제처리(상태변경) : info license
@@ -65,9 +65,9 @@ public class LicenseController {
   /* asset license ----------------------------------------------------------------*/
     //등록 : asset license
     @PostMapping("/asset")
-    public Map<String, Long> registerAsset(AssetLicenseDTO assetLicenseDTO){
-        log.info("(Controller)license asset register 실행====등록할 파일 : " + assetLicenseDTO);
-        Long ano = assetService.register(assetLicenseDTO);
+    public Map<String, Long> registerAsset(AssetLicenseIPDTO assetLicenseIPDTO){
+        log.info("(Controller)license asset register 실행====등록할 파일 : " + assetLicenseIPDTO);
+        Long ano = assetService.register(assetLicenseIPDTO);
         return Map.of("result", ano);
     }
     //조회 one : asset license(with file list)
@@ -77,15 +77,20 @@ public class LicenseController {
     }
     //조회 all : asset license(with paging+file count)
     @GetMapping("/asset")
-    public PageResponseDTO<AssetLicenseListDTO> getListAsset(PageRequestDTO pageRequestDTO){
+    public PageResponseDTO<AssetLicenseListOPDTO> getListAsset(PageRequestDTO pageRequestDTO){
         return assetService.getList(pageRequestDTO);
+    }
+
+    @GetMapping("/asset_list") //noPaging
+    public List<AssetLicenseListOPDTO> getOnlyListAsset(){
+        return assetService.getOnlyList();
     }
 
     //변경 :asset license(with file list)
     @PutMapping("/asset/{ano}")
-    public Map<String, String> modifyAsset(@PathVariable("ano")Long ano, AssetLicenseDTO assetLicenseDTO){
-        assetLicenseDTO.setAno(ano);
-        assetService.update(assetLicenseDTO);
+    public Map<String, String> modifyAsset(@PathVariable("ano")Long ano, AssetLicenseIPDTO assetLicenseIPDTO){
+        assetLicenseIPDTO.setAno(ano);
+        assetService.update(assetLicenseIPDTO);
         return Map.of("RESULT", "SUCCESS");
     }
     //삭제처리(상태변경) : asset license(with file list)

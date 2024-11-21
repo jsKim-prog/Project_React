@@ -1,15 +1,13 @@
 package com.project.it.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 @Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Setter
 public class FileUploadDTO {
+
+
     private Long fno;
 
     private String category; //구분(폴더)
@@ -19,5 +17,18 @@ public class FileUploadDTO {
     private String folderPath; //저장경로
     private Long size; //파일크기
     private boolean deleteOrNot; //삭제여부
+
+    public FileUploadDTO(Long fno, String category, Long assetNum, String originFileName, String saveFileName, String folderPath, Long size, boolean deleteOrNot){
+        this.fno = fno;
+        this.category = category;
+        this.assetNum = assetNum;
+        this.originFileName = originFileName;
+        this.saveFileName = saveFileName;
+        this.folderPath = folderPath;
+        this.size = size;
+        this.deleteOrNot = deleteOrNot;
+    }
+
+    public FileUploadDTO(){}
 
 }

@@ -23,7 +23,7 @@ public class InfoLicense {
 
     private String rightName; //이름(특허/계약명) : ex_Adobe Photoshop
     private String version; //제품 버전
-    private String purpose; //용도 : 디자인, 개발..
+    private String purpose; //목적(제품)
     private String copyrightHolder; //저작권자
     private int price; //금액(계약총액)
     @Enumerated(EnumType.STRING)

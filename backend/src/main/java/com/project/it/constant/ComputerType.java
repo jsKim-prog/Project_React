@@ -4,6 +4,8 @@ public enum ComputerType {
     DESKTOP,
     NOTEBOOK,
     TABLET,
-    ALL_IN_ONE
+    ALL_IN_ONE,
+    MONITOR,
+    MOUSE
 
 }

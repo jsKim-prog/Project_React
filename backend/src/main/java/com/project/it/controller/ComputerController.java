@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -67,6 +68,11 @@ public class ComputerController {
     public PageResponseDTO<AssetComputerOneDTO> getListAsset(PageRequestDTO pageRequestDTO){
         return assetService.getList(pageRequestDTO);
     }
+    @GetMapping("/asset_list")
+    public List<AssetComputerOneDTO> getOnlyListAsset(){
+        return assetService.getOnlyList();
+    }
+
 
     //변경 :asset license(with file list)
     @PutMapping("/asset/{cno}")

@@ -27,6 +27,8 @@ public class InfoPartnersServiceImpl implements InfoPartnersService{
     private final InfoPartnersRepository partnersRepository;
     private final ModelMapper modelMapper;
 
+    private final String category = "partners";
+
     @Override  //C: 고객사 등록
     public Long register(InfoPartnersDTO infoPartnersDTO) {
         log.info("(Service)고객사 정보 등록-----------:"+infoPartnersDTO);
