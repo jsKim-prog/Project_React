@@ -29,6 +29,7 @@ public class ApplicationServiceImpl implements ApplicationService{
 
     @Override
     public Long register(ApplicationDTO applicationDTO) { // C
+        log.info("지원서 등록 : " + applicationDTO.toString());
         Application application = dtoToEntity(applicationDTO);
         application.changeJoinStatus(JoinStatus.WAITING);
         Application result = APR.save(application);
@@ -39,11 +40,33 @@ public class ApplicationServiceImpl implements ApplicationService{
     }
 
     @Override
+    public Long modify(ApplicationDTO applicationDTO) { //U
+        Application application = dtoToEntity(applicationDTO);
+        Application result = APR.save(application);
+
+        log.info(result);
+
+        return result.getNo();
+    }
+
+    @Override
     public ApplicationDTO getOne(String no) { //R-O
         Optional<Application> application = APR.findById(no);
-        ApplicationDTO applicationDTD = entityToDto(application.get());
-        log.info(applicationDTD);
-        return applicationDTD;
+        ApplicationDTO applicationDTO = ApplicationDTO.builder()
+                .no(application.get().getNo())
+                .name(application.get().getName())
+                .phoneNum(application.get().getPhoneNum())
+                .mail(application.get().getMail())
+                .start_date(application.get().getStart_date())
+                .build();
+
+        List<ApplicationFile> applicationFilesLists = application.get().getApplicationFileList();
+        applicationDTO.getUploadFileNames().add(applicationFilesLists.get(0).getFileName());
+
+        applicationDTO.getOrganizationTeam().add(application.get().getOrganizationTeamList().get(0).toString());
+        applicationDTO.getJoinStatus().add(application.get().getJoinStatusList().get(0).toString());
+        log.info(applicationDTO);
+        return applicationDTO;
     }
 
 
@@ -52,39 +75,63 @@ public class ApplicationServiceImpl implements ApplicationService{
         log.info("getList..........");
 
         Pageable pageable = PageRequest.of(
-                pageRequestDTO.getPage() - 1,  //페이지 시작 번호가 0부터 시작하므로
+                pageRequestDTO.getPage() - 1,  // 페이지 시작 번호가 0부터 시작하므로
                 pageRequestDTO.getSize(),
                 Sort.by("no").descending());
 
-        Page<Application> result = APR.selectList(pageable);
-        List<ApplicationDTO> dtoList = new ArrayList<>();
+        Page<Application> result = null;
 
+        String searchQuery = pageRequestDTO.getSearchQuery(); // 검색어
+        if (searchQuery == null || searchQuery.isEmpty()) {
+            // 검색어 없이 전체 리스트
+            result = APR.selectList(pageable);
+        } else {
+            try {
+                // 지원결과로 검색
+                JoinStatus joinStatus = JoinStatus.fromString(searchQuery);
+                result = APR.findAllByJoinStatus(joinStatus, pageable);
+            } catch (IllegalArgumentException e) {
+                try {
+                    // 지원부서로 검색
+                    OrganizationTeam organizationTeam = OrganizationTeam.fromKoreanName(searchQuery);
+                    result = APR.findAllByOrganizationTeam(organizationTeam, pageable);
+                } catch (IllegalArgumentException ex) {
+                    // 이름으로 검색
+                    result = APR.findAllByName(searchQuery, pageable);
+                }
+            }
+        }
+
+        List<ApplicationDTO> dtoList = new ArrayList<>();
         log.info("Page result : " + result.stream().toList().get(0));
         Application application;
         ApplicationDTO applicationDTO;
 
-        for(int i = 0; i<=result.stream().toList().size()-1; i++){
+        for (int i = 0; i <= result.stream().toList().size() - 1; i++) {
 
-                application = result.stream().toList().get(i);
-                applicationDTO = ApplicationDTO.builder()
-                        .no(application.getNo())
-                        .name(application.getName())
-                        .phoneNum(application.getPhoneNum())
-                        .mail(application.getMail())
-                        .build();
-                if (application.getJoinStatusList() != null) {
-                    applicationDTO.getJoinStatus().add(application.getJoinStatusList().get(0).toString());
-                }
-                if (application.getOrganizationTeamList() != null) {
-                    applicationDTO.getOrganizationTeam().add(application.getOrganizationTeamList().get(0).toString());
-                }
-                if (application.getApplicationFileList() != null) {
-                    applicationDTO.getUploadFileNames().add(application.getApplicationFileList().get(0).toString());
-                }
-                dtoList.add(applicationDTO);
+            application = result.stream().toList().get(i);
+            applicationDTO = ApplicationDTO.builder()
+                    .no(application.getNo())
+                    .name(application.getName())
+                    .phoneNum(application.getPhoneNum())
+                    .mail(application.getMail())
+                    .start_date(application.getStart_date())
+                    .build();
+            if (application.getJoinStatusList() != null && !application.getJoinStatusList().isEmpty()) {
+                applicationDTO.getJoinStatus().add(application.getJoinStatusList().get(0).toString());
+            }
+
+            if (application.getOrganizationTeamList() != null && !application.getOrganizationTeamList().isEmpty()) {
+                applicationDTO.getOrganizationTeam().add(application.getOrganizationTeamList().get(0).toString());
+            }
+
+            if (application.getApplicationFileList() != null && !application.getApplicationFileList().isEmpty()) {
+                applicationDTO.getUploadFileNames().add(application.getApplicationFileList().get(0).getFileName());
+            }
+
+            dtoList.add(applicationDTO);
 
         }
-
 
         Long totalCount = result.getTotalElements();
 
@@ -97,6 +144,7 @@ public class ApplicationServiceImpl implements ApplicationService{
                 .build();
     }
 
+
     private Application dtoToEntity(ApplicationDTO applicationDTO){  // dto를 Entity로 변환
 
         Application application = Application.builder()
@@ -104,6 +152,7 @@ public class ApplicationServiceImpl implements ApplicationService{
                 .name(applicationDTO.getName())
                 .phoneNum(applicationDTO.getPhoneNum())
                 .mail(applicationDTO.getMail())
+                .start_date(applicationDTO.getStart_date())
                 .build();
 
         //업로드 처리가 끝난 파일들의 이름 리스트
@@ -119,7 +168,7 @@ public class ApplicationServiceImpl implements ApplicationService{
 
         if(organizationTeamName != null){
             organizationTeamName.stream().forEach(teamName -> {
-                application.addOTL(OrganizationTeam.fromString(teamName));
+                application.addOTL(OrganizationTeam.fromKoreanName(teamName));
             });
         }
 
@@ -150,6 +199,7 @@ public class ApplicationServiceImpl implements ApplicationService{
                 .name(application.getName())
                 .phoneNum(application.getPhoneNum())
                 .mail(application.getMail())
+                .start_date(application.getStart_date())
                 .uploadFileNames(uploadFileNames)
                 .organizationTeam(organizationTeam)
                 .joinStatus(joinStatus)

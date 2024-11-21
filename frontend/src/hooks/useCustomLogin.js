@@ -30,6 +30,10 @@ const useCustomLogin = () => {
         return <Navigate replace to="/login"/>    
     }
 
+    const moveToRegister = () => {//회원가입페이지로 이동 컴포넌트
+        navigate({pathname: '/register'}, {replace:true})
+    }
+
     const exceptionHandle = (ex) => {
 
         console.log("Exception--------------------------")
@@ -49,7 +53,7 @@ const useCustomLogin = () => {
         }
     }
     
-    return {loginState, isLogin, doLogin, doLogout, moveToPath, moveToLogin, moveToLoginReturn}
+    return {loginState, isLogin, doLogin, doLogout, moveToPath, moveToLogin, moveToLoginReturn, moveToRegister}
 }
 
 export default useCustomLogin

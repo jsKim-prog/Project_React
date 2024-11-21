@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class ApplicationDTO {
     private String phoneNum;
     
     private String mail;
+
+    private LocalDateTime start_date;
 
     @Builder.Default
     private List<String> joinStatus = new ArrayList<>();

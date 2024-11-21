@@ -7,8 +7,16 @@ const host = `${API_SERVER_HOST}/organization`
 const header = {headers: {"Content-Type": "x-www.form.urlencoded"}};
 
 export const list = async (pageParam) => {
-    const {page, size} = pageParam
-    const res = await axios.get(`${host}/page`, {params:{page:page, size:size}});   
+    const {page, size, searchQuery} = pageParam
+
+    // 검색어가 있을 경우 params에 추가
+    const params = { page, size };
+    if (searchQuery) {
+        params.searchQuery = searchQuery; // 검색어 추가
+    }
+
+    const res = await axios.get(`${host}/page`, { params });
+    
     console.log(res.data);
 
     return res.data;

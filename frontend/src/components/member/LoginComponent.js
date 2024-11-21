@@ -11,7 +11,7 @@ const LoginComponent = () => {
 
   const [loginParam, setLoginParam] = useState({...initState})
 
-  const {doLogin, moveToPath} = useCustomLogin()
+  const {doLogin, moveToPath, moveToRegister} = useCustomLogin()
 
   //const dispatch = useDispatch()
 
@@ -80,9 +80,8 @@ const LoginComponent = () => {
 
                   <tr>
                     <th colSpan={2}>                                                          
-                    <button onClick={handleClickLogin}>로그인</button>
-                    <button>정보찾기</button>
-                    <button>회원가입</button>
+                    <button onClick={handleClickLogin}>로그인</button>                    
+                    <button onClick={moveToRegister}>회원가입</button>
                     </th>
                   </tr>
                   </thead>

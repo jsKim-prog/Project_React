@@ -5,12 +5,10 @@ import com.project.it.dto.*;
 import com.project.it.repository.MemberRepository;
 import com.project.it.repository.MemberStatusRepository;
 import com.project.it.repository.OrganizationRepository;
+import com.project.it.util.RoleNameMapping;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -189,39 +187,86 @@ public class MemberStatusServiceImpl implements MemberStatusService{
         log.info("getList..............");
 
         Pageable pageable = PageRequest.of(
-                pageRequestDTO.getPage() - 1,  //페이지 시작 번호가 0부터 시작하므로
+                pageRequestDTO.getPage() - 1,  // 페이지 시작 번호가 0부터 시작하므로
                 pageRequestDTO.getSize(),
                 Sort.by("mno").descending());
 
-        Page<MemberStatus> result = memberSR.selectList(pageable);
+        String searchQuery = pageRequestDTO.getSearchQuery();
+
+        Page<MemberStatus> result = null;
+
+        // 검색어에 따라 Query 변경
+        if (searchQuery != null && !searchQuery.isEmpty()) {
+            List<Member> memberList = new ArrayList<>();
+            List<MemberStatus> memberStatusList = new ArrayList<>();
+
+            try {
+                // 직위 검색
+                MemberRole searchQueryMemberRole = RoleNameMapping.getRoleFromKoreanName(searchQuery);
+                memberList = memberRepository.searchMembersByRole(searchQueryMemberRole);
+                for (Member member : memberList) {
+                    MemberStatus ms = memberSR.searchByMno(member.getMno());
+                    memberStatusList.add(ms);
+                }
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid Role search query: " + searchQuery);
+            }
+
+            if (memberStatusList.isEmpty()) {
+                try {
+                    // 부서 검색
+                    OrganizationTeam searchQueryOT = OrganizationTeam.fromKoreanName(searchQuery);
+                    List<Organization> org = orgRepo.searchOrganizationsByTeam(searchQueryOT);
+                    for (Organization organization : org) {
+                        MemberStatus ms = memberSR.searchByMno(organization.getMember().getMno());
+                        memberStatusList.add(ms);
+                    }
+                } catch (IllegalArgumentException e) {
+                    log.warn("Invalid Team search query: " + searchQuery);
+                }
+            }
+
+            if (memberStatusList.isEmpty()) {
+                // 이름 검색
+                result = memberSR.searchByQuery(searchQuery, pageable);
+            } else {
+                result = new PageImpl<>(memberStatusList, pageable, memberStatusList.size());
+            }
+        } else {
+            result = memberSR.selectList(pageable);
+        }
+
         List<MemberStatusDTO> list = new ArrayList<>();
 
-        log.info("Page result : " + result.stream().toList().get(0));
-        MemberStatus memberStatus;
-        MemberStatusDTO memberStatusDTO;
+        // 페이지 데이터가 있을 때만 처리
+        List<MemberStatus> memberStatusList = result.getContent();  // getContent() 사용
+        if (!memberStatusList.isEmpty()) {
+            log.info("Page result : " + memberStatusList.get(0));
 
-        for(int i = 0; i<result.getSize(); i++){
-            memberStatus = result.stream().toList().get(i);
-            Member member = memberRepository.searchMemberByMno(memberStatus.getMno());
-            String memberRole = member.getMemberRoleList().get(member.getMemberRoleList().size()-1).toString();
-            Organization ot = orgRepo.findByMemberMno(memberStatus.getMno());
-            String team = ot.getOrganizationTeamList().get(ot.getOrganizationTeamList().size()-1).toString();
+            for (MemberStatus memberStatus : memberStatusList) {
+                Member member = memberRepository.searchMemberByMno(memberStatus.getMno());
+                String memberRole = member.getMemberRoleList().get(member.getMemberRoleList().size() - 1).toString();
+                Organization ot = orgRepo.findByMemberMno(memberStatus.getMno());
+                String team = ot.getOrganizationTeamList().get(ot.getOrganizationTeamList().size() - 1).toString();
 
-
-            memberStatusDTO = MemberStatusDTO.builder()
-                    .email(memberStatus.getMember().getEmail())
-                    .mno(memberStatus.getMember().getMno())
-                    .start_date(memberStatus.getMember().getStart_date())
-                    .memberRole(memberRole)
-                    .name(memberStatus.getName())
-                    .tel(memberStatus.getTel())
-                    .birth(memberStatus.getBirth())
-                    .education(memberStatus.getEducation())
-                    .teamName(ot.getTeamName())
-                    .team(team)
-                    .build();
-            list.add(memberStatusDTO);
+                MemberStatusDTO memberStatusDTO = MemberStatusDTO.builder()
+                        .email(memberStatus.getMember().getEmail())
+                        .mno(memberStatus.getMember().getMno())
+                        .start_date(memberStatus.getMember().getStart_date())
+                        .memberRole(memberRole)
+                        .name(memberStatus.getName())
+                        .tel(memberStatus.getTel())
+                        .birth(memberStatus.getBirth())
+                        .education(memberStatus.getEducation())
+                        .teamName(ot.getTeamName())
+                        .team(team)
+                        .build();
+                list.add(memberStatusDTO);
+            }
+        } else {
+            log.info("No member status data found.");
         }
+
         long totalCount = result.getTotalElements();
 
         return PageResponseDTO.<MemberStatusDTO>withAll()
@@ -229,9 +274,9 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                 .totalCount(totalCount)
                 .pageRequestDTO(pageRequestDTO)
                 .build();
-
-
     }
+
+
 
     @Override
     public void modifyMemberRole(MemberTeamDTO mtDTO) {

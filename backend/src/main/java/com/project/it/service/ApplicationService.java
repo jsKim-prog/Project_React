@@ -10,6 +10,8 @@ public interface ApplicationService {
     PageResponseDTO<ApplicationDTO> getList(PageRequestDTO pageRequestDTO);
     ApplicationDTO getOne(String no);
     Long register(ApplicationDTO applicationDTO);
+    Long modify(ApplicationDTO applicationDTO);
+
 
 
 }

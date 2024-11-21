@@ -1,11 +1,15 @@
 package com.project.it.repository;
 
 import com.project.it.domain.Member;
+import com.project.it.domain.MemberRole;
+import com.project.it.domain.OrganizationTeam;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member,String> {
@@ -16,6 +20,11 @@ public interface MemberRepository extends JpaRepository<Member,String> {
 
     @EntityGraph(attributePaths = {"memberRoleList"})
     Member searchMemberByMno(@Param("mno") Long mno);
+
+    @Query("Select m from Member m join m.memberRoleList mr where mr = :searchQuery")
+    List<Member> searchMembersByRole(MemberRole searchQuery);
+
+
 
 
 

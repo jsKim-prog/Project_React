@@ -1,42 +1,23 @@
 import { useEffect, useState } from "react";
-import { Card, Row, Col, CardBody, Label, Button, Modal, ModalHeader, ModalBody } from "reactstrap";
+import { Card, Row, Col, CardBody, Label, Button, Modal, ModalHeader, ModalBody, Table, Input } from "reactstrap";
 import FetchingModal from "../../common/FetchingModal"; 
-import { readOne } from "../../../api/applicationAPI";
+import { getFiles, modifyMember, readOne } from "../../../api/applicationAPI";
 
 const AppOneModal = ({ no, isOpen, closeModal }) => {
   const initState = {
-    no: '',
-    uploadFileNames: [],
-  };
+    name: '',
+    phoneNum: '',
+    mail: '',
+    teamName: '',
+    files: null, // 파일은 null로 초기화
+    joinStatus: '',
+    startdate:'',
+    
+};
 
   const [memberS, setMember] = useState(initState);
   const [fetching, setFetching] = useState(false);
   const [imageUrl, setImageUrl] = useState(null); // 이미지 URL 상태 추가
-
-  // 파일 다운로드 처리 함수
-  const fetchApplication = async (mno) => {
-    console.log("fetchApplication 실행")
-    try {
-      // JSON 데이터 요청
-      const response = await fetch(`/api/getOne/${mno}`);
-      const result = await response.json();  // JSON 응답 받기
-      const fileName = result.application.uploadFileNames[0];
-  
-      // 파일 다운로드를 별도로 처리
-      const fileResponse = await fetch(`/api/getFile/${fileName}`);
-      const fileBlob = await fileResponse.blob();  // 파일 응답을 Blob 형태로 받기
-      const fileURL = URL.createObjectURL(fileBlob);  // Blob을 URL로 변환
-      console.log(fileURL)
-
-      // 파일 다운로드 트리거
-      const link = document.createElement('a');
-      link.href = fileURL;
-      link.download = fileName;  // 다운로드할 파일 이름 설정
-      link.click();  // 다운로드 트리거
-    } catch (error) {
-      console.error("Error fetching application:", error);
-    }
-  };
 
   useEffect(() => {
     if (!no) return; // `no`가 없으면 API 호출하지 않음
@@ -44,36 +25,74 @@ const AppOneModal = ({ no, isOpen, closeModal }) => {
     setFetching(true);
 
     // 데이터 가져오기
-    readOne(no)
-      .then(data => {
+    const fetchData = async () => {
+      try {
+        const data = await readOne(no);
         setMember(data);
-
-        // 이미지 URL 설정
+        console.log(data);
+            
+        // 파일 URL 가져오기
         if (data.uploadFileNames && data.uploadFileNames.length > 0) {
-          const imageName = data.uploadFileNames[0]; // 첫 번째 파일명을 사용
-          console.log(imageName)
-          fetch(`/api/getFile/${imageName}`)
-            .then(response => response.blob())
-            .then(blob => {
-              const url = URL.createObjectURL(blob); // Blob을 URL로 변환
-              console.log(url)
-              setImageUrl(url); // 이미지 URL 상태 업데이트
-            })
-            .catch(error => console.error("Error fetching image:", error));
+          const url = await getFiles(data.uploadFileNames[0]);
+          console.log(url);
+          setImageUrl(url);
         }
-
-        setFetching(false);
-      })
-      .catch(error => {
-        console.error('Error fetching data: ', error);
-        setFetching(false);
-      });
+    
+        } catch (error) {
+          console.error("데이터를 가져오는 중 오류 발생:", error);
+        } finally {
+          setFetching(false);
+        }
+        };
+    
+        fetchData();
   }, [no]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setMember((prevState) => ({
+        ...prevState,
+        [name]: value, // 해당 필드 업데이트
+    }));
+    console.log(memberS);
+  
+
+    
+};
+
+const handleClickModify = () => {
+        
+  console.log(memberS);     
+  
+  modifyMember(memberS)
+  .then(data => {                        
+      console.log("modify success")            
+      if(data.error){
+          alert("오류가 발생되었습니다.")
+      } else {
+          alert("정보 수정 성공")              
+      }
+  });
+// 수정데이터 서버 전송 로직 자리  
+};
+
+  // 파일 다운로드 처리 함수
+  const handleDownload = async () => {
+    try {
+      const fileUrl = await getFiles(memberS.uploadFileNames[0]); // 첫 번째 파일 URL을 가져옴
+      const link = document.createElement('a');
+      link.href = fileUrl; // Blob URL을 사용
+      link.download = memberS.uploadFileNames[0]; // 파일 이름 설정
+      link.click(); // 다운로드 실행
+    } catch (error) {
+      console.error("파일 다운로드 중 오류 발생:", error);
+    }
+  };
 
   if (!no) return null;
 
   return (
-    <Modal isOpen={isOpen} toggle={closeModal} backdrop="static" size="sm">
+    <Modal isOpen={isOpen} toggle={closeModal} backdrop="static" size="m">
       {fetching ? (
         <FetchingModal />
       ) : (
@@ -85,19 +104,19 @@ const AppOneModal = ({ no, isOpen, closeModal }) => {
                 {/* Card-1 */}
                 <Card>
                   <CardBody>
-                    <table>
+                    <Table>
                       <tbody>
                         <tr>
                           <td>
                             <Label for="no">입사지원번호</Label>
                           </td>
-                          <td>{memberS.no}</td>
+                          <td align="center" >{memberS.no}</td>
                         </tr>
                         <tr>
                           <td>
                             <Label>지원서</Label>
                           </td>
-                          <td>
+                          <td align="center">
                             {imageUrl ? (
                               <img src={imageUrl} alt="지원서 이미지" width="200" />
                             ) : (
@@ -106,17 +125,32 @@ const AppOneModal = ({ no, isOpen, closeModal }) => {
                           </td>
                         </tr>
                         <tr>
-                          <td>
-                            <Button color="primary" onClick={() => fetchApplication(memberS.no)}>
-                              파일 다운로드
+                          <td>지원 결과</td>
+                          <td align="center">
+                          <Input
+                            id="joinStatus"
+                            name="joinStatus"
+                            type="select"                                                 
+                            onChange={handleChange}
+                             >
+                              <option value={"WAITING"}>신규지원</option>
+                              <option value={"HOLD"}>보류</option>
+                              <option value={"DISMISSED"}>불합격</option>
+                              <option value={"PASSED"}>합격</option>
+                            </Input>                            
+                            </td>
+                        </tr>
+                        <tr>
+                          <td colSpan={2} align="center">
+                            <Button color="primary" onClick={handleDownload}>
+                              이력서 다운로드
                             </Button>
-                          </td>
-                          <td>
+                            <Button color="success" onClick={handleClickModify}> 저장 </Button>
                             <Button color="secondary" onClick={closeModal}>닫기</Button>
                           </td>
                         </tr>
                       </tbody>
-                    </table>
+                    </Table>
                   </CardBody>
                 </Card>
               </Col>

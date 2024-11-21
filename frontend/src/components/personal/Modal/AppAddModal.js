@@ -9,7 +9,7 @@ const AppAddModal = ({ isOpen, closeModal }) => {
         name: '',
         phoneNum: '',
         mail: '',
-        teamName: '',
+        teamName: 'TECHNIC',
         files: null, // 파일은 null로 초기화
     };
 
@@ -89,7 +89,7 @@ const AppAddModal = ({ isOpen, closeModal }) => {
                 <FetchingModal />
             ) : (
                 <>
-                    <ModalHeader toggle={closeModal}>사원 정보 수정</ModalHeader>
+                    <ModalHeader toggle={closeModal}>사원 정보 입력</ModalHeader>
                     <ModalBody>
                         <Row>
                             <Col>

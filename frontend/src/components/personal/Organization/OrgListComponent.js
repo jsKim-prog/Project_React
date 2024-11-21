@@ -1,12 +1,13 @@
-import { Card, CardBody, CardTitle, CardSubtitle, Table } from "reactstrap";
+import { Button, Card, CardBody, CardTitle, Table, Input } from "reactstrap";
 import { useEffect, useState } from "react";
 import { list } from "../../../api/organizationAPI";
 import OrgOneModal from "../Modal/OrgOneModal";
 import useCustomMove from "../../../hooks/useCustomList";
 import PageComponent from "../../common/PageComponent";
 import useChangeData from "../../../hooks/useChangeData";
+import debounce from "lodash.debounce";
 
-//기본 설정값
+// 기본 설정값
 const pageState = {
   dtoList: [],
   pageNumList: [],
@@ -22,30 +23,53 @@ const pageState = {
 
 const OrgListComponent = () => {
   const { page, size, moveToList, refresh } = useCustomMove();
-  //기초 배열사용해야 .map 오류 회피
   const [fetching, setFetching] = useState(false);
   const [serverData, setServerData] = useState({ ...pageState });
+  const [selectedMno, setSelectedMno] = useState(null); // 선택된 사원 번호 상태 관리
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
+  const { changeTeamName, changeRoleName } = useChangeData();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [cursorStyle, setCursorStyle] = useState('default'); // 마우스 커서 상태 관리
 
-  useEffect(() => {
+  // 서버 데이터 fetch
+  const fetchData = debounce(() => {
     setFetching(true);
-    // 데이터 가져오기
-    list({ page, size })
+    list({ page, size, searchQuery })
       .then((data) => {
-        console.log('Fetched data: ', data);
         setServerData(data);
         setFetching(false);
       })
       .catch((error) => {
-        console.error('Error fetching data : ', error);
+        console.error("Error fetching data : ", error);
         setFetching(false);
       });
-  }, [page, size, refresh]);
+  }, 500); // 500ms 후에 데이터 요청
 
-  // 1인 선택시의 모달
-  const [selectedMno, setSelectedMno] = useState(null); // 선택된 사원 번호 상태 관리
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달상태관리
-  const { changeTeamName, changeRoleName } = useChangeData();
+  useEffect(() => {
+    fetchData(); // 검색어가 바뀔 때마다 서버 요청
+  }, [searchQuery, page, size, refresh]);
 
+  // 검색어 입력값 변경 처리
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value.trim()); // 검색어 업데이트
+  };
+
+  // 검색 버튼 클릭 처리
+  const handleSearch = () => {
+    setFetching(true);
+    // 페이지를 0으로 설정하여 첫 번째 페이지부터 결과를 가져옵니다.
+    list({ page: 0, size, searchQuery })
+      .then((data) => {
+        setServerData(data);
+        setFetching(false);
+      })
+      .catch((error) => {
+        console.error("Error during search: ", error);
+        setFetching(false);
+      });
+  };
+
+  // 1인 선택 시의 모달
   const openModal = (mno) => {
     if (mno) {
       setSelectedMno(mno); // 선택된 mno 상태 저장
@@ -60,24 +84,32 @@ const OrgListComponent = () => {
 
   return (
     <div>
-      <OrgOneModal
-        mno={selectedMno}
-        isOpen={isModalOpen}
-        closeModal={closeModal}
-      />
+      <OrgOneModal mno={selectedMno} isOpen={isModalOpen} closeModal={closeModal} />
       <Card>
         <CardBody>
           <CardTitle tag="h5" className="align-middle"> 사원 명부 </CardTitle>          
+          {/* 검색어 입력 필드 및 버튼 */}
+          <div className="d-flex mb-3">
+            <Input
+              type="text"
+              name="search"
+              placeholder="이름, 직위, 부서로 검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="me-2"
+            />
+            <Button onClick={handleSearch}>
+              검색
+            </Button>
+          </div>
 
           <Table className="no-wrap mt-3 align-middle" responsive borderless>
             <thead>
               <tr>
                 <th> 사원번호 </th>
-                <th>  이  름 </th>
-                <th>
-                   직  위                  
-                </th>
-                <th> 부  서 </th>
+                <th> 이 름 </th>
+                <th> 직 위 </th>
+                <th> 부 서 </th>
                 <th> 입사일 </th>
               </tr>
             </thead>
@@ -89,6 +121,7 @@ const OrgListComponent = () => {
                       <div className="ms-3">
                         <span
                           className="text-muted"
+                          style={{ cursor: "pointer" }} // 커서 스타일을 직접 지정
                           onClick={() => openModal(member.mno)}
                         >
                           {member.mno}
@@ -104,13 +137,18 @@ const OrgListComponent = () => {
               ))}
               <tr>
                 <td colSpan={'5'}>
-                <PageComponent serverData={serverData} movePage={moveToList} />
+                  <PageComponent 
+                    serverData={serverData} 
+                    movePage={moveToList} 
+                    cursorStyle={cursorStyle} 
+                    setCursorStyle={setCursorStyle}
+                    searchQuery={searchQuery} // 검색어 전달
+                  />
                 </td>
               </tr>
             </tbody>
           </Table>
         </CardBody>
-        
       </Card>
     </div>
   );

@@ -3,6 +3,9 @@ package com.project.it.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Getter
@@ -43,6 +46,7 @@ public class MemberStatus {
     @ManyToOne
     @JoinColumn(name = "member_mno")
     private Member member;
+
 
     //method
     public void addMember(Member member){

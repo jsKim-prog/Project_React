@@ -46,7 +46,7 @@ public class MemberOrganizationServiceImpl implements MemberOrganizationService{
     public void modifyTeam(MemberTeamDTO T) {
         Organization organization = orgRepo.findByMemberMno(T.getMno());
         organization.setTeamName(T.getTeamName());
-        organization.addOrganizationTeam(OrganizationTeam.fromString(T.getTeam()));
+        organization.addOrganizationTeam(OrganizationTeam.fromKoreanName(T.getTeam()));
         orgRepo.save(organization);
 
     }
