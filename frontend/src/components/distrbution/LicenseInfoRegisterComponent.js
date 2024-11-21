@@ -11,7 +11,7 @@ const initState = { //InfoLicenseDTO
     version: '',
     purpose: '',
     copyrightHolder: '',
-    totalPrice: 0,
+    price: 0,
     priceUnit: 'YEAR',
     maxUserCount: 0,
     contact: '-'
@@ -37,7 +37,7 @@ const LicenseInfoRegisterComponent = () => {
         formData.append("version", licenseInfo.version)
         formData.append("purpose", licenseInfo.purpose)
         formData.append("copyrightHolder", licenseInfo.copyrightHolder)
-        formData.append("totalPrice", licenseInfo.totalPrice)
+        formData.append("price", licenseInfo.price)
         formData.append("priceUnit", licenseInfo.priceUnit)
         formData.append("maxUserCount", licenseInfo.maxUserCount)
         formData.append("contact", licenseInfo.contact)
@@ -90,13 +90,7 @@ const LicenseInfoRegisterComponent = () => {
                         </FormGroup>
                         <FormGroup>
                             <Label for="purpose">용도</Label>
-                            <Input id="purpose" name="purpose" type="select" onChange={handleChangeLicenseInfo}>
-                                <option value={"programming"}>프로그래밍</option>
-                                <option value={"design"}>디자인</option>
-                                <option value={"documemt"}>문서작성</option>
-                                <option value={"management"}>경영/회계</option>
-                                <option value={"network"}>네트워크/보안</option>
-                                <option value={"etc"}>기타</option>
+                            <Input id="purpose" name="purpose" type="text" onChange={handleChangeLicenseInfo}>
                             </Input>
                         </FormGroup>
                         <FormGroup>
@@ -113,15 +107,15 @@ const LicenseInfoRegisterComponent = () => {
                             <Label for="priceGroup">금액/단위</Label>
                             <InputGroup id="priceGroup">
                                 <Input
-                                    id="totalPrice"
-                                    name="totalPrice"
+                                    id="price"
+                                    name="price"
                                     placeholder="00"
                                     type="number"
                                     onChange={handleChangeLicenseInfo}
                                 /><span><Input id="priceUnit" name="priceUnit" type="select" onChange={handleChangeLicenseInfo}>
-                                    <option value={"YEAR"}>1년간</option>
-                                    <option value={"MONTHLY"}>1개월간</option>
-                                    <option value={"PERSON"}>1인당</option>
+                                    <option value={"년"}>1년간</option>
+                                    <option value={"월"}>1개월간</option>
+                                    <option value={"인"}>1인당</option>
                                 </Input></span></InputGroup>
                         </FormGroup>                  
                     <FormGroup>

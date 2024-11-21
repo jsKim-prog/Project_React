@@ -38,7 +38,7 @@ const useDistMove = () => {
         }
         setRefresh(!refresh)
         navigate({
-            pathname: "../dist/licenses/list",
+            pathname: "../dist/licenses",
             search: queryStr,
         })
     }
@@ -77,12 +77,13 @@ const useDistMove = () => {
         })
     }
 
-    // 조회 화면으로 넘어가는 메서드
-    const moveToRead = (id) => {
-        console.log(queryDefault)
+    // 조회 화면으로 넘어가는 메서드(asset)
+    const moveToRead = (ano) => {
+        console.log(queryDefault);  
+        console.log("요청 ano : "+ano);
 
         navigate({
-            pathname: `../dist/licenses`,
+            pathname: `../dist/licenses/${ano}`,
             search: queryDefault
         })
     }

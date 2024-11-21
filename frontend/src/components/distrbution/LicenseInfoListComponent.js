@@ -54,7 +54,7 @@ const LicenseInfoListComponent = () => {
               </thead>
               <tbody>
                 {serverData.dtoList.map((infoDto, index) => (                  
-                  <tr key={infoDto.lno} className="border-top" onClick={moveToRead(infoDto.lno)}>
+                  <tr key={infoDto.lno} className="border-top" onClick={()=>moveToRead(infoDto.lno)}>
                     <td>{infoDto.rightName}</td>
                     <td>{infoDto.version}</td>
                     <td>{infoDto.purpose} </td>

@@ -9,13 +9,15 @@ const FullLayout = lazy(() => import("../layouts/FullLayout.js"));
 const Starter = lazy(() => import("../views/Starter.js"));
 
 const Project = lazy(() => import("../pages/project/ProjectList"));
-const ProjectRegister = lazy(() => import("../pages/project/ProjectRegister"))
+const ProjectRegister = lazy(() => import("../pages/project/ProjectRegister"));
 const ProjectRead = lazy(() => import("../pages/project/ProjectRead"));
 const ProjectModify = lazy(() => import("../pages/project/ProjectModify"));
 
-const Licenselist = lazy(()=>import("../pages/distribution/LicenseAssetList"))
-const LicenseInfoRegister = lazy(()=>import("../pages/distribution/LicenseInfoAdd"))
-const LicenseAssetAdd = lazy(()=>import("../pages/distribution/LicenseAssetAdd"))
+const Licenselist = lazy(()=>import("../pages/distribution/LicenseAssetList"));
+const LicenseInfoRegister = lazy(()=>import("../pages/distribution/LicenseInfoAdd"));
+const LicenseAssetAdd = lazy(()=>import("../pages/distribution/LicenseAssetAdd"));
+const LicenseInfoList = lazy(()=>import("../components/distrbution/LicenseInfoListComponent"));
+const LicenseAssetView  = lazy(()=>import("../pages/distribution/LicenseAssetView"));
 
 /*****Routes******/
 
@@ -33,6 +35,9 @@ const ThemeRoutes = [
       { path: "/dist/licenses", exact: true, element:<Licenselist/>},
       { path: "/dist/licenses/request", exact: true, element:<LicenseAssetAdd/>},
       { path: "/dist/licenses/register", exact: true, element:<LicenseInfoRegister/>},
+      { path: "/dist/licenses/list", exact: true, element:<LicenseInfoList/>},
+      { path: "/dist/licenses/:ano", exact: true, element:<LicenseAssetView/>},
+      
     ],
   },
 ];

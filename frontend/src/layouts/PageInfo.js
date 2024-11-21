@@ -6,26 +6,30 @@ const menu1_topMenu = {
   title: "대시보드",
   href: "/starter",
   icon: "bi bi-speedometer2",
-  role: ""
+  role: "",
+  id: "1_0"
 }
 //menu2
 const menu2_topMenu = {
   title: "프로젝트 관리",
   href: "/project",
   icon: "bi bi-card-text",
-  role: ""
+  role: "",
+  id: "2_0"
 }
 
 const menu2_sub1 = {
   title: "프로젝트 관리",
   href: "/project",
-  role: ""
+  role: "",
+  id: "2_1"
 }
 
 const menu2_sub2 = {
   title: "이슈 관리",
   href: "/",
-  role: ""
+  role: "",
+  id: "2_2"
 }
 
 //menu3
@@ -33,19 +37,22 @@ const menu3_topMenu = {
   title: "인사관리",
   href: "/",
   icon: "bi bi-people",
-  role: ""
+  role: "",
+  id: "3_0"
 }
 
 const menu3_sub1 = {
   title: "사원관리",
   href: "/",
-  role: ""
+  role: "",
+  id: "3_1"
 }
 
 const menu3_sub2 = {
   title: "근태관리",
   href: "/",
-  role: ""
+  role: "",
+  id: "3_2"
 }
 
 //menu4
@@ -53,35 +60,41 @@ const menu4_topMenu = {
   title: "자원관리",
   href: "/",
   icon: "bi bi-hdd-stack",
-  role: ""
+  role: "",
+  id: "4_0"
 }
 
 const menu4_sub1 = {
   title: "자원사용신청(문서함)",
   href: "/",
-  role: ""
+  role: "",
+  id: "4_1"
 }
 
 const menu4_sub2 = {
   title: "하드웨어 관리",
   href: "/",
-  role: ""
+  role: "",
+  id: "4_2"
 }
 const menu4_sub3 = {
   title: "라이선스 관리",
   href: "/dist/licenses",
-  role: ""
+  role: "",
+  id: "4_3"
 }
 
 const menu4_sub4 = {
   title: "고객사 관리",
   href: "/",
-  role: ""
+  role: "",
+  id: "4_4"
 }
 const menu4_sub5 = {
   title: "사무용품 관리",
   href: "/",
-  role: ""
+  role: "",
+  id: "4_5"
 }
 
 

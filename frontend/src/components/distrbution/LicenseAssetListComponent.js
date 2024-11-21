@@ -20,7 +20,7 @@ const initState={ //PageResponseDTO
 
 
 const LicenseAssetListComponent = () => {
-    const {page, size, refresh, moveToRegister, moveToList,  moveToRequest} = useDistMove();
+    const {page, size, refresh, moveToRegister, moveToList,  moveToRequest, moveToRead} = useDistMove();
     const [serverData, setServerData] = useState(initState)
     const [fetching, setFetching] = useState(false) //진행모달
     //const {exceptionHandle} = useCustomLogin()
@@ -45,22 +45,24 @@ const LicenseAssetListComponent = () => {
             <Table className="no-wrap mt-3 align-middle" responsive borderless>
               <thead>
                 <tr>
+                <th>#</th>
                   <th>구분</th>
                   <th>상품명</th>  
                   <th>사용처</th>
-                  <th>사용중 개수/최대사용가능 개수</th>
+                  <th>사용중/사용가능 개수</th>
                   <th>만료일</th>
                 </tr>
               </thead>
               <tbody>
-                {serverData.dtoList.map((assetDto, index) => (                  
-                  <tr key={assetDto.ano} className="border-top" > 
-                    <td>{assetDto.type}</td>
+                {serverData.dtoList.map((assetDto, index) => (           
+                  <tr key={assetDto.ano} className="border-top" onClick={()=>moveToRead(assetDto.ano)}> 
+                  <td>{assetDto.ano}</td>
+                    <td>{assetDto.rightType}</td>
                     <td>{assetDto.rightName} {assetDto.fileCount > 0? <span className="badge bg-primary rounded-pill">{assetDto.fileCount}</span>:<></>}</td>
-                    <td>{assetDto.purpose}</td>
+                    <td>{assetDto.usePurpose}</td>
                     <td>{assetDto.currentUseCount} / {assetDto.totalUseCount}</td>
                     <td>{assetDto.expireDate}</td>
-                  </tr>
+                  </tr> 
                 ))}
               </tbody>
             </Table>

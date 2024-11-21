@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Row, Col } from 'reactstrap';
 
+
 const PageComponent = ({ serverData, movePage }) => {
     return (
         <Row className="m-6 justify-content-center">
