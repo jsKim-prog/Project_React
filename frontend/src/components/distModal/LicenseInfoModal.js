@@ -37,20 +37,20 @@ function LicenseInfoModal({ isOpen, callbackFn}) {
    //페이징용
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const currentPage = parseInt(queryParams.get("page"));
-    const currentSize = parseInt(queryParams.get("size"));
+    const currentPage = parseInt(queryParams.get("page"))||1;
+    const currentSize = parseInt(queryParams.get("size"))||10;
 
 
     useEffect(() => {
-        if(!isOpen){return;}
         setFetching(true)
         getListInfo({ page:currentPage, size:currentSize }).then(data => {
            // console.log(data);
             setServerData(data);
-             setFetching(false);
-         console.log(serverData);    
+            
+         //console.log(serverData);    
         })
-    }, [currentPage, currentSize, isOpen])
+        setFetching(false);
+    }, [setServerData])
 
     //선택시 객체에 값 세팅
     const handleSave = (e) => {
@@ -83,9 +83,11 @@ function LicenseInfoModal({ isOpen, callbackFn}) {
         const sizeNum = pageParam?.size || currentSize;
 
         //페이지 data 업데이트
-        getListInfo({ page:currentPage, size:currentSize }).then(data => {
-            // console.log(data);
+        setFetching(true);
+        getListInfo({ page:pageNum, size:sizeNum }).then(data => {
+             console.log(data);
              setServerData(data);
+             setFetching(false);
          });
     }
 
@@ -125,7 +127,7 @@ function LicenseInfoModal({ isOpen, callbackFn}) {
                             </Table>
                         </CardBody>
                         <div className="mb-3">
-                            <PageComponent serverData={serverData} movePage={moveToModalList(currentPage, currentSize)}></PageComponent> </div>
+                            <PageComponent serverData={serverData} movePage={moveToModalList}></PageComponent> </div>
                     </Card>
                 </div>
             </ModalBody>

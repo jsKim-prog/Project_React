@@ -12,7 +12,6 @@ export const fileDownload = async (path, filename) => {
 
 /* 등록 : info license */
 export const registInfo = async (dto) => {
-    const header = { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     const res = await axios.post(`${prefix}/info`, dto)
     return res.data
 }
@@ -23,8 +22,8 @@ export const getOneInfo = async (lno) => {
 }
 /* 조회 all : info license */
 export const getListInfo = async (pageParam) => {
-    const { page, size } = pageParam
-    const res = await axios.get(`${prefix}/info`)
+    const { page, size } = pageParam;
+    const res = await axios.get(`${prefix}/info`,{params:{page:page, size:size}});
     return res.data
 }
 /* 변경 :info license */
@@ -58,8 +57,8 @@ export const getOneAsset = async (ano) => {
 }
 /* 조회 all : asset license(with paging+file count) */
 export const getListAsset = async (pageParam) => {
-    const { page, size } = pageParam
-    const res = await axios.get(`${prefix}/asset`)
+    const { page, size } = pageParam;
+    const res = await axios.get(`${prefix}/asset`,{params:{page:page, size:size}})
     return res.data
 }
 /* 변경 :asset license(with file list) */
@@ -68,8 +67,8 @@ export const modAsset = async (dto) => {
     const res = await axios.put(`${prefix}/asset/${dto.ano}`, dto, header)
     return res.data
 }
-/* 삭제처리(상태변경) : asset license(with file list) */
-export const delAsset = async (ano) => {
+/* 계약해지 - 삭제처리(상태변경) : asset license(with file list) */
+export const cancleAsset = async (ano) => {
     const res = await axios.delete(`${prefix}/asset/${ano}`)
     return res.data
 }

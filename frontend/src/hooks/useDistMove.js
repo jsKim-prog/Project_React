@@ -43,28 +43,7 @@ const useDistMove = () => {
         })
     }
 
-    // 목록으로 돌아가는 함수(Info)
-    const moveToInfoList = (pageParam) => {
-        let queryStr = ""
 
-        if (pageParam) { // pageParam이 있으면,
-            // 파라미터 추출
-            const pageNum = getNum(pageParam.page, 1)
-            const sizeNum = getNum(pageParam.size, 10)
-            // 하나로 합침
-            queryStr = createSearchParams({
-                page: pageNum,
-                size: sizeNum
-            }).toString()
-        } else { // pageParam없으면 기본값 1, 10
-            queryStr = queryDefault
-        }
-        setRefresh(!refresh)
-        navigate({
-            pathname: "../dist/licenses/list",
-            search: queryStr,
-        })
-    }
 
 
     // 수정 화면으로 넘어가는 메서드
@@ -104,8 +83,18 @@ const useDistMove = () => {
         })
     }
 
+    //재계약 화면으로 넘어가기(with info 객체)
+    const moveToReContract = (infoDto) =>{
+        console.log("moveToReContract..."+JSON.stringify(infoDto));
+        localStorage.setItem('infoDTO', JSON.stringify(infoDto)); //객체저장
+        //이동
+        navigate({
+            pathname:`../dist/licenses/recontract`
+        })
+    }
+
     return (
-        { moveToList, moveToModify, moveToRead, moveToRegister, moveToRequest, moveToInfoList, page, size }
+        { moveToList, moveToModify, moveToRead, moveToRegister, moveToRequest,  moveToReContract, page, size }
     );
 
 

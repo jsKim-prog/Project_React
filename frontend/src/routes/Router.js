@@ -18,6 +18,7 @@ const LicenseInfoRegister = lazy(()=>import("../pages/distribution/LicenseInfoAd
 const LicenseAssetAdd = lazy(()=>import("../pages/distribution/LicenseAssetAdd"));
 const LicenseInfoList = lazy(()=>import("../components/distrbution/LicenseInfoListComponent"));
 const LicenseAssetView  = lazy(()=>import("../pages/distribution/LicenseAssetView"));
+const LicenseAssetReContract = lazy(()=>import("../pages/distribution/LicenseAssetReContract"));
 
 /*****Routes******/
 
@@ -37,6 +38,7 @@ const ThemeRoutes = [
       { path: "/dist/licenses/register", exact: true, element:<LicenseInfoRegister/>},
       { path: "/dist/licenses/list", exact: true, element:<LicenseInfoList/>},
       { path: "/dist/licenses/:ano", exact: true, element:<LicenseAssetView/>},
+      { path: "/dist/licenses/recontract", exact: true, element:<LicenseAssetReContract/>},
       
     ],
   },
