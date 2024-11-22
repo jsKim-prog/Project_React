@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Form } from "reactstrap";
 
 const API_SERVER_HOST = 'http://192.168.0.212:80/it'
 
@@ -45,15 +46,24 @@ export const add = async (formData) => {
 export const readOne = async (no) => {
     console.log('no : ' + no)
     const res = await axios.get(`${host}/getOne/${no}`);
+    console.log(res)
     return res.data;    
 }
 
 export const modifyMember = async (memberS) => {
-    console.log('ModalData : ' + memberS)
+    console.log('ModalData : ' + memberS.no)
+
+    const form = new FormData();
+    form.append('no', memberS.no)
+    form.append('joinStatus', memberS.joinStatus)
+
+    form.forEach((value, key) => {
+        console.log(`${key}: ${value}`);
+    })
 
     const header = {headers: {"Content-Type": "multipart/form-data"}}
    
-    const res = await axios.post(`${host}/modify`, memberS, header)
+    const res = await axios.post(`${host}/modify`, form, header)
 
     console.log(res.data);
 

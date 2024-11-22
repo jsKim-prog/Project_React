@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useCustomMove from "../../../hooks/useCustomList";
 import useChangeData from "../../../hooks/useChangeData";
-import { Button, Card, CardBody, CardTitle, Table, Input } from "reactstrap";
+import { Button, Card, CardBody, CardTitle, Table, Input, Spinner } from "reactstrap";
 import PageComponent from "../../common/PageComponent";
 import { list } from "../../../api/applicationAPI";
 import AppAddModal from "../Modal/AppAddModal";
@@ -22,48 +22,54 @@ const pageState = {
 };
 
 const ListComponent = () => {
-  const { page, size, moveToList, refresh } = useCustomMove();
+  const { page, size, moveToAppList, refresh } = useCustomMove();
   const [fetching, setFetching] = useState(false);
   const [serverData, setServerData] = useState({ ...pageState });
 
   // 검색어 상태 관리
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [cursorStyle, setCursorStyle] = useState('default'); // 마우스 커서 상태 관리
 
-  useEffect(() => {
-    setFetching(true);
-    // 데이터 요청
-    list({ page, size, searchQuery })
-      .then((data) => {
-        console.log("Fetched data: ", data);
-        setServerData(data);
-        setFetching(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching data: ", error);
-        setFetching(false);
-      });
-  }, [page, size, refresh, searchQuery]); // 검색어가 변경되면 재호출
+  // Debounce를 위한 상태
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
 
   // 검색어 입력값 변경 처리
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value); // 검색어 업데이트
   };
 
+  // 검색어에 딜레이를 주기 위한 useEffect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery); // 일정 시간 후에 debouncedSearchQuery 업데이트
+    }, 500); // 500ms 후에 업데이트
+
+    // 클린업 함수: 이전의 타이머를 정리해서 불필요한 호출을 방지
+    return () => clearTimeout(timer);
+  }, [searchQuery]); // searchQuery가 변경될 때마다 useEffect 실행
+
+  // 데이터 요청 함수
+  const fetchData = async (searchQuery) => {
+    setFetching(true);
+    try {
+      const data = await list({ page, size, searchQuery });
+      console.log("Fetched data: ", data);
+      setServerData(data);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  // 페이지와 사이즈가 변경될 때마다 데이터 요청
+  useEffect(() => {
+    fetchData(debouncedSearchQuery || ''); // 검색어가 없으면 기본값으로 빈 문자열 전달
+  }, [debouncedSearchQuery, page, size]); // 페이지나 사이즈가 변경될 때마다 호출
+
   // 검색 버튼 클릭 처리
   const handleSearch = () => {
-    // 검색어에 대한 필터링을 반영하도록 state 업데이트
-    setFetching(true);
-    list({ page, size, searchQuery })
-      .then((data) => {
-        console.log("Search result: ", data);
-        setServerData(data);
-        setFetching(false);
-      })
-      .catch((error) => {
-        console.error("Error during search: ", error);
-        setFetching(false);
-      });
+    fetchData(debouncedSearchQuery);
   };
 
   // 모달 상태 관리
@@ -98,7 +104,7 @@ const ListComponent = () => {
   const refreshData = async () => {
     setFetching(true);
     try {
-      const data = await list({ page, size, searchQuery });
+      const data = await list({ page, size, searchQuery: debouncedSearchQuery });
       console.log("Refreshed data: ", data);
       setServerData(data);
     } catch (error) {
@@ -132,6 +138,13 @@ const ListComponent = () => {
             </Button>
           </div>
 
+          {/* 로딩 중일 때 로딩 스피너를 보여줌 */}
+          {fetching ? (
+            <div className="text-center">
+              <Spinner color="primary" /> 로딩 중...
+            </div>
+          ) : (
+
           <Table className="no-wrap mt-3" responsive borderless>
             <thead>
               <tr>
@@ -160,7 +173,11 @@ const ListComponent = () => {
                   <td>
                     <div className="d-flex align-items-center p-2">
                       <div className="ms-3">
-                        <span className="text-muted" onClick={() => openModal(member.no)}>
+                        <span
+                        style={{ cursor: cursorStyle }} // 커서 스타일을 여기에서 적용                          
+                        onMouseEnter={() => setCursorStyle('pointer')} // 마우스를 올리면 포인터로 변경
+                        onMouseLeave={() => setCursorStyle('default')} // 마우스를 벗어나면 기본 커서로 복원
+                        className="text-muted" onClick={() => openModal(member.no)}>
                           {member.no}
                         </span>
                       </div>
@@ -176,16 +193,17 @@ const ListComponent = () => {
               <tr>
                 <td colSpan="6">
                   <PageComponent
-                  serverData={serverData} 
-                  movePage={moveToList} 
-                  cursorStyle={cursorStyle} 
-                  setCursorStyle={setCursorStyle}
-                  searchQuery={searchQuery} // 검색어 전달
+                    serverData={serverData} 
+                    movePage={moveToAppList} 
+                    cursorStyle={cursorStyle} 
+                    setCursorStyle={setCursorStyle}
+                    searchQuery={searchQuery} // 검색어 전달
                   />
                 </td>
               </tr>
             </tbody>
           </Table>
+          )}
         </CardBody>
       </Card>
     </div>

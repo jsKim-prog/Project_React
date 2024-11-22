@@ -1,75 +1,82 @@
-// 페이지 넘어가는 기능을 한곳에 모아두기 위함.
-
-import { useState } from "react"
-import { createSearchParams, useNavigate, useSearchParams } from "react-router-dom"
+import { useState } from "react";
+import { createSearchParams, useNavigate, useSearchParams } from "react-router-dom";
 
 // getNum을 호출할때 파라미터, 기본값을 받아옴
 const getNum = (param, defaultValue) => {
     if (!param) { // 파라미터가 없으면
-        return defaultValue // 기본값인 1, 10
+        return defaultValue; // 기본값인 1, 10
     }
-    return parseInt(param) // 파라미터가 있으면 인트로 변환후 리턴
-}
+    return parseInt(param); // 파라미터가 있으면 인트로 변환후 리턴
+};
 
 const useCustomMove = () => {
     const navigate = useNavigate();
-    // 현재 페이지를 다시 클릭하면 서버 호출을 하지않음,
-    // 동일한 page, size더라도 매번 서버 호출하고 싶으면 매번 변하는 상태값을 이용해야함.
-    // 즉 버튼 클릭시 true와 false 값이 번갈아 가면서 변경되거나, 숫자가 계속올라가거나, 현재시간등을 이용할수있음
-    const [refresh, setRefresh] = useState(false)
-    const [queryParams] = useSearchParams()
-    const page = getNum(queryParams.get("page"), 1)
-    const size = getNum(queryParams.get("size"), 10)
-    // 디폴트 쿼리 page=1&size=10
-    const queryDefault = createSearchParams({ page, size }).toString()
+    const [refresh, setRefresh] = useState(false); // 페이지 리프레시를 위한 상태
+    const [queryParams] = useSearchParams(); // 현재 쿼리 파라미터 받아오기
 
-    // 목록으로 돌아가는 함수
-    const moveToList = (pageParam) => {
-        let queryStr = ""
+    const page = getNum(queryParams.get("page"), 1); // 페이지 번호
+    const size = getNum(queryParams.get("size"), 10); // 페이지 크기
 
-        if (pageParam) { // pageParam이 있으면,
-            // 파라미터 추출
-            const pageNum = getNum(pageParam.page, 1)
-            const sizeNum = getNum(pageParam.size, 10)
-            // 하나로 합침
+    const queryDefault = createSearchParams({ page, size }).toString(); // 기본 쿼리 문자열
+
+    // 공통된 페이지 이동 로직
+    const moveTo = (path, pageParam) => {
+        let queryStr = "";
+
+        if (pageParam) {
+            const pageNum = getNum(pageParam.page, 1);
+            const sizeNum = getNum(pageParam.size, 10);
             queryStr = createSearchParams({
                 page: pageNum,
-                size: sizeNum
-            }).toString()
-        } else { // pageParam없으면 기본값 1, 10
-            queryStr = queryDefault
+                size: sizeNum,
+            }).toString();
+        } else {
+            queryStr = queryDefault;
         }
-        setRefresh(!refresh)
+
+        setRefresh(!refresh); // 상태 변경으로 리렌더링 트리거
         navigate({
-            pathname: "../org",
+            pathname: path,
             search: queryStr,
-        })
-    }
+        });
+    };
 
+    // 목록 페이지로 이동
+    const moveToList = (pageParam) => {
+        console.log("moveToList 동작")
+        moveTo("../org", pageParam);
+    };
 
-    // 수정 화면으로 넘어가는 메서드
+    // application 페이지로 이동
+    const moveToAppList = (pageParam) => {
+        console.log("moveToAppList 동작")
+        moveTo("../application", pageParam);
+    };
+
+    // 수정 화면으로 이동
     const moveToModify = (id) => {
-        console.log(queryDefault);
-
         navigate({
             pathname: `../project/modify/${id}`,
-            search: queryDefault // 수정시 기존의 쿼리 스트링 유지를 위해
-        })
-    }
+            search: queryDefault, // 수정 시 기존의 쿼리 스트링 유지를 위해
+        });
+    };
 
-    // 조회 화면으로 넘어가는 메서드
+    // 조회 화면으로 이동
     const moveToRead = (id) => {
-        console.log(queryDefault)
-
         navigate({
             pathname: `../project/${id}`,
-            search: queryDefault
-        })
-    }
+            search: queryDefault,
+        });
+    };
 
-    return (
-        { moveToList, moveToModify, moveToRead, page, size }
-    );
-}
+    return {
+        moveToList,
+        moveToModify,
+        moveToRead,
+        page,
+        size,
+        moveToAppList,
+    };
+};
 
 export default useCustomMove;

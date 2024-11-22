@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,12 +42,20 @@ public class ApplicationServiceImpl implements ApplicationService{
 
     @Override
     public Long modify(ApplicationDTO applicationDTO) { //U
-        Application application = dtoToEntity(applicationDTO);
-        Application result = APR.save(application);
+        log.info("serviceImpl start");
+        Optional<Application> application = APR.findById(applicationDTO.getNo().toString());
+        log.info("searchApplicationByNo's data : " + application.toString());
+        JoinStatus joinStatus = JoinStatus.fromString(applicationDTO.getJoinStatus().get(0));
+        application.get().changeJoinStatus(joinStatus);
+
+        log.info("joinStatus 변경후의 application 값 : " + application.toString());
+
+        Application result = APR.save(application.get());
 
         log.info(result);
 
         return result.getNo();
+
     }
 
     @Override
@@ -71,70 +80,80 @@ public class ApplicationServiceImpl implements ApplicationService{
 
 
     @Override
-    public PageResponseDTO<ApplicationDTO> getList(PageRequestDTO pageRequestDTO) { //R-List
+    public PageResponseDTO<ApplicationDTO> getList(PageRequestDTO pageRequestDTO) { // R-List
         log.info("getList..........");
 
+        // 페이지 번호가 1 미만일 경우 기본값 1로 설정
+        int page = pageRequestDTO.getPage() < 1 ? 1 : pageRequestDTO.getPage();
+
         Pageable pageable = PageRequest.of(
-                pageRequestDTO.getPage() - 1,  // 페이지 시작 번호가 0부터 시작하므로
+                page - 1,  // 페이지 번호는 0부터 시작하므로 -1 처리
                 pageRequestDTO.getSize(),
                 Sort.by("no").descending());
 
         Page<Application> result = null;
 
         String searchQuery = pageRequestDTO.getSearchQuery(); // 검색어
+        log.info("Search Query: " + searchQuery);
+
+        // 검색어 처리 로직
         if (searchQuery == null || searchQuery.isEmpty()) {
             // 검색어 없이 전체 리스트
             result = APR.selectList(pageable);
         } else {
-            try {
-                // 지원결과로 검색
-                JoinStatus joinStatus = JoinStatus.fromString(searchQuery);
+            // 검색어에 따른 검색 분기 처리
+            JoinStatus joinStatus = tryParseJoinStatus(searchQuery);
+            if (joinStatus != null) {
+                log.info("지원결과 검색");
                 result = APR.findAllByJoinStatus(joinStatus, pageable);
-            } catch (IllegalArgumentException e) {
-                try {
-                    // 지원부서로 검색
-                    OrganizationTeam organizationTeam = OrganizationTeam.fromKoreanName(searchQuery);
+            } else {
+                OrganizationTeam organizationTeam = tryParseOrganizationTeam(searchQuery);
+                if (organizationTeam != null) {
+                    log.info("지원부서 검색");
                     result = APR.findAllByOrganizationTeam(organizationTeam, pageable);
-                } catch (IllegalArgumentException ex) {
-                    // 이름으로 검색
+                } else {
+                    log.info("이름 검색");
                     result = APR.findAllByName(searchQuery, pageable);
                 }
             }
         }
 
+        // 비어있는 결과 처리
+        if (result == null || result.getContent().isEmpty()) {
+            log.warn("No results found for the search query: " + searchQuery);
+            return new PageResponseDTO<>(Collections.emptyList(), pageRequestDTO, 0L);
+        }
+
         List<ApplicationDTO> dtoList = new ArrayList<>();
-        log.info("Page result : " + result.stream().toList().get(0));
-        Application application;
-        ApplicationDTO applicationDTO;
-
-        for (int i = 0; i <= result.stream().toList().size() - 1; i++) {
-
-            application = result.stream().toList().get(i);
-            applicationDTO = ApplicationDTO.builder()
+        // result.getContent() 사용하여 안전하게 데이터 순회
+        for (Application application : result.getContent()) {
+            ApplicationDTO applicationDTO = ApplicationDTO.builder()
                     .no(application.getNo())
                     .name(application.getName())
                     .phoneNum(application.getPhoneNum())
                     .mail(application.getMail())
                     .start_date(application.getStart_date())
                     .build();
+
+            // JoinStatusList 확인 및 DTO에 추가
             if (application.getJoinStatusList() != null && !application.getJoinStatusList().isEmpty()) {
                 applicationDTO.getJoinStatus().add(application.getJoinStatusList().get(0).toString());
             }
 
+            // OrganizationTeamList 확인 및 DTO에 추가
             if (application.getOrganizationTeamList() != null && !application.getOrganizationTeamList().isEmpty()) {
                 applicationDTO.getOrganizationTeam().add(application.getOrganizationTeamList().get(0).toString());
             }
 
+            // ApplicationFileList 확인 및 DTO에 추가
             if (application.getApplicationFileList() != null && !application.getApplicationFileList().isEmpty()) {
                 applicationDTO.getUploadFileNames().add(application.getApplicationFileList().get(0).getFileName());
             }
 
             dtoList.add(applicationDTO);
-
         }
 
         Long totalCount = result.getTotalElements();
-
         log.info(dtoList);
 
         return PageResponseDTO.<ApplicationDTO>withAll()
@@ -143,6 +162,26 @@ public class ApplicationServiceImpl implements ApplicationService{
                 .pageRequestDTO(pageRequestDTO)
                 .build();
     }
+
+    // JoinStatus 변환을 안전하게 처리하는 메서드
+    private JoinStatus tryParseJoinStatus(String searchQuery) {
+        try {
+            return JoinStatus.fromString(searchQuery);
+        } catch (IllegalArgumentException e) {
+            return null; // 변환할 수 없으면 null 반환
+        }
+    }
+
+    // OrganizationTeam 변환을 안전하게 처리하는 메서드
+    private OrganizationTeam tryParseOrganizationTeam(String searchQuery) {
+        try {
+            return OrganizationTeam.fromKoreanName(searchQuery);
+        } catch (IllegalArgumentException e) {
+            return null; // 변환할 수 없으면 null 반환
+        }
+    }
+
+
 
 
     private Application dtoToEntity(ApplicationDTO applicationDTO){  // dto를 Entity로 변환

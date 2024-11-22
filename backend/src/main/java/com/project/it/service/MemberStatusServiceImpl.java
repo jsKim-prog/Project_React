@@ -26,6 +26,7 @@ public class MemberStatusServiceImpl implements MemberStatusService{
     private final OrganizationRepository orgRepo;
 
 
+
     @Override
     public String register(MemberStatusDTO R) {
         Member member = Member.builder()
@@ -186,24 +187,26 @@ public class MemberStatusServiceImpl implements MemberStatusService{
     public PageResponseDTO<MemberStatusDTO> getList(PageRequestDTO pageRequestDTO) {
         log.info("getList..............");
 
+        // 페이지 번호가 1 미만일 경우 기본값 1로 처리
+        int page = pageRequestDTO.getPage() < 1 ? 1 : pageRequestDTO.getPage();
+
+        // 페이지 번호가 0 이상이어야 하므로, page - 1이 0 미만이 되지 않도록 조건 처리
         Pageable pageable = PageRequest.of(
-                pageRequestDTO.getPage() - 1,  // 페이지 시작 번호가 0부터 시작하므로
+                page - 1,  // 페이지 번호가 0부터 시작하므로 -1 처리
                 pageRequestDTO.getSize(),
                 Sort.by("mno").descending());
 
         String searchQuery = pageRequestDTO.getSearchQuery();
-
         Page<MemberStatus> result = null;
 
         // 검색어에 따라 Query 변경
         if (searchQuery != null && !searchQuery.isEmpty()) {
-            List<Member> memberList = new ArrayList<>();
             List<MemberStatus> memberStatusList = new ArrayList<>();
 
             try {
                 // 직위 검색
                 MemberRole searchQueryMemberRole = RoleNameMapping.getRoleFromKoreanName(searchQuery);
-                memberList = memberRepository.searchMembersByRole(searchQueryMemberRole);
+                List<Member> memberList = memberRepository.searchMembersByRole(searchQueryMemberRole);
                 for (Member member : memberList) {
                     MemberStatus ms = memberSR.searchByMno(member.getMno());
                     memberStatusList.add(ms);
@@ -212,9 +215,9 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                 log.warn("Invalid Role search query: " + searchQuery);
             }
 
+            // 직위로 검색이 없으면 부서로 검색
             if (memberStatusList.isEmpty()) {
                 try {
-                    // 부서 검색
                     OrganizationTeam searchQueryOT = OrganizationTeam.fromKoreanName(searchQuery);
                     List<Organization> org = orgRepo.searchOrganizationsByTeam(searchQueryOT);
                     for (Organization organization : org) {
@@ -226,18 +229,19 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                 }
             }
 
+            // 부서로도 검색이 없으면 이름으로 검색
             if (memberStatusList.isEmpty()) {
-                // 이름 검색
                 result = memberSR.searchByQuery(searchQuery, pageable);
             } else {
+                // 검색 결과가 있으면 PageImpl로 처리
                 result = new PageImpl<>(memberStatusList, pageable, memberStatusList.size());
             }
         } else {
+            // 검색어가 없으면 전체 리스트 조회
             result = memberSR.selectList(pageable);
         }
 
         List<MemberStatusDTO> list = new ArrayList<>();
-
         // 페이지 데이터가 있을 때만 처리
         List<MemberStatus> memberStatusList = result.getContent();  // getContent() 사용
         if (!memberStatusList.isEmpty()) {
@@ -275,6 +279,7 @@ public class MemberStatusServiceImpl implements MemberStatusService{
                 .pageRequestDTO(pageRequestDTO)
                 .build();
     }
+
 
 
 

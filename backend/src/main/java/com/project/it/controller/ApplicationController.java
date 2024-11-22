@@ -1,6 +1,7 @@
 package com.project.it.controller;
 
 import com.project.it.dto.*;
+import com.project.it.dto.PageResponseDTO;
 import com.project.it.service.ApplicationService;
 import com.project.it.util.CustomFileUtil;
 import lombok.RequiredArgsConstructor;
@@ -85,10 +86,11 @@ public class ApplicationController {
         log.info("수정컨트롤러 시작");
         log.info("modify : " + applicationDTO);
 
-        Long msg = appS.modify(applicationDTO);  // 등록 처리
+        Long msg = appS.modify(applicationDTO);  // 수정 처리
 
         log.info(msg);
         return Map.of("RESULT", msg.toString());
+
     }
 
 

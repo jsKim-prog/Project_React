@@ -37,6 +37,7 @@ public class Organization {
     }
 
     public void addOrganizationTeam(OrganizationTeam organizationTeam){
+        organizationTeamList.remove(0);
         organizationTeamList.add(organizationTeam);
     }
 

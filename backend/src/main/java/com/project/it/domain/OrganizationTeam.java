@@ -22,10 +22,10 @@ public enum OrganizationTeam {
     // 한글 부서명으로 OrganizationTeam을 반환하는 역변환 메서드
     public static OrganizationTeam fromKoreanName(String koreanName) {
         for (OrganizationTeam team : OrganizationTeam.values()) {
-            if (team.koreanName.equals(koreanName)) {
+            if (team.koreanName.equalsIgnoreCase(koreanName)) {
                 return team;
             }
         }
-        return null; // 일치하는 값이 없으면 null 반환
+        throw new IllegalArgumentException("Invalid Korean name: " + koreanName);
     }
 }

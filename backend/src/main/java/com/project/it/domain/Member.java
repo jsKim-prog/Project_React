@@ -46,6 +46,7 @@ public class Member {
     }
 
     public void addRole(MemberRole memberRole){
+        memberRoleList.remove(0);
         memberRoleList.add(memberRole);
     }
 

@@ -12,6 +12,7 @@ const AppOneModal = ({ no, isOpen, closeModal }) => {
     files: null, // 파일은 null로 초기화
     joinStatus: '',
     startdate:'',
+    no:'',
     
 };
 
@@ -27,13 +28,13 @@ const AppOneModal = ({ no, isOpen, closeModal }) => {
     // 데이터 가져오기
     const fetchData = async () => {
       try {
-        const data = await readOne(no);
-        setMember(data);
-        console.log(data);
+        const res = await readOne(no);
+        setMember(res);
+        console.log(memberS);
             
         // 파일 URL 가져오기
-        if (data.uploadFileNames && data.uploadFileNames.length > 0) {
-          const url = await getFiles(data.uploadFileNames[0]);
+        if (res.uploadFileNames && res.uploadFileNames.length > 0) {
+          const url = await getFiles(res.uploadFileNames[0]);
           console.log(url);
           setImageUrl(url);
         }
@@ -52,12 +53,9 @@ const AppOneModal = ({ no, isOpen, closeModal }) => {
     const { name, value } = e.target;
     setMember((prevState) => ({
         ...prevState,
-        [name]: value, // 해당 필드 업데이트
+        [name]: value, // 해당 필드 업데이트        
     }));
     console.log(memberS);
-  
-
-    
 };
 
 const handleClickModify = () => {
@@ -70,7 +68,8 @@ const handleClickModify = () => {
       if(data.error){
           alert("오류가 발생되었습니다.")
       } else {
-          alert("정보 수정 성공")              
+          alert("정보 수정 성공")       
+          closeModal()       
       }
   });
 // 수정데이터 서버 전송 로직 자리  

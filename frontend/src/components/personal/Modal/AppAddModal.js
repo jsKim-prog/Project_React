@@ -9,7 +9,7 @@ const AppAddModal = ({ isOpen, closeModal }) => {
         name: '',
         phoneNum: '',
         mail: '',
-        teamName: 'TECHNIC',
+        teamName: '기술부',
         files: null, // 파일은 null로 초기화
     };
 
@@ -153,10 +153,10 @@ const AppAddModal = ({ isOpen, closeModal }) => {
                                                             type="select"
                                                             onChange={handleChange}
                                                         >
-                                                            <option value={"TECHNIC"}>기술부</option>
-                                                            <option value={"PERSONNEL"}>인사부</option>
-                                                            <option value={"ACCOUNTING"}>회계부</option>
-                                                            <option value={"FINANCIAL_MANAGEMENT"}>재무관리팀</option>
+                                                            <option value={"기술부"}>기술부</option>
+                                                            <option value={"인사부"}>인사부</option>
+                                                            <option value={"회계부"}>회계부</option>
+                                                            <option value={"재무관리팀"}>재무관리팀</option>
                                                         </Input>
                                                     </td>
                                                 </tr>

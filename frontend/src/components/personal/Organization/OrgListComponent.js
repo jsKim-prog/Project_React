@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardTitle, Table, Input } from "reactstrap";
+import { Button, Card, CardBody, CardTitle, Table, Input, Spinner } from "reactstrap";
 import { useEffect, useState } from "react";
 import { list } from "../../../api/organizationAPI";
 import OrgOneModal from "../Modal/OrgOneModal";
@@ -37,10 +37,13 @@ const OrgListComponent = () => {
     list({ page, size, searchQuery })
       .then((data) => {
         setServerData(data);
-        setFetching(false);
+        
       })
       .catch((error) => {
         console.error("Error fetching data : ", error);
+        
+      })
+      .finally(()=>{
         setFetching(false);
       });
   }, 500); // 500ms 후에 데이터 요청
@@ -60,11 +63,12 @@ const OrgListComponent = () => {
     // 페이지를 0으로 설정하여 첫 번째 페이지부터 결과를 가져옵니다.
     list({ page: 0, size, searchQuery })
       .then((data) => {
-        setServerData(data);
-        setFetching(false);
+        setServerData(data);       
       })
       .catch((error) => {
-        console.error("Error during search: ", error);
+        console.error("Error during search: ", error);        
+      })
+      .finally(()=> {
         setFetching(false);
       });
   };
@@ -103,6 +107,13 @@ const OrgListComponent = () => {
             </Button>
           </div>
 
+          {/* 로딩 중일 때 로딩 스피너를 보여줌 */}
+          {fetching ? (
+            <div className="text-center">
+              <Spinner color="primary" /> 로딩 중...
+            </div>
+          ) : (
+
           <Table className="no-wrap mt-3 align-middle" responsive borderless>
             <thead>
               <tr>
@@ -120,9 +131,10 @@ const OrgListComponent = () => {
                     <div className="d-flex align-items-center p-2">
                       <div className="ms-3">
                         <span
-                          className="text-muted"
-                          style={{ cursor: "pointer" }} // 커서 스타일을 직접 지정
                           onClick={() => openModal(member.mno)}
+                          style={{ cursor: cursorStyle }} // 커서 스타일을 여기에서 적용                          
+                          onMouseEnter={() => setCursorStyle('pointer')} // 마우스를 올리면 포인터로 변경
+                          onMouseLeave={() => setCursorStyle('default')} // 마우스를 벗어나면 기본 커서로 복원
                         >
                           {member.mno}
                         </span>
@@ -139,7 +151,7 @@ const OrgListComponent = () => {
                 <td colSpan={'5'}>
                   <PageComponent 
                     serverData={serverData} 
-                    movePage={moveToList} 
+                    movePage={moveToList} // movePage를 moveToAppList로 수정
                     cursorStyle={cursorStyle} 
                     setCursorStyle={setCursorStyle}
                     searchQuery={searchQuery} // 검색어 전달
@@ -148,6 +160,7 @@ const OrgListComponent = () => {
               </tr>
             </tbody>
           </Table>
+          )}
         </CardBody>
       </Card>
     </div>
