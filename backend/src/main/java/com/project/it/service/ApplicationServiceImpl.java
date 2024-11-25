@@ -45,7 +45,7 @@ public class ApplicationServiceImpl implements ApplicationService{
         log.info("serviceImpl start");
         Optional<Application> application = APR.findById(applicationDTO.getNo().toString());
         log.info("searchApplicationByNo's data : " + application.toString());
-        JoinStatus joinStatus = JoinStatus.fromString(applicationDTO.getJoinStatus().get(0));
+        JoinStatus joinStatus = JoinStatus.valueOf(applicationDTO.getJoinStatus().get(0));
         application.get().changeJoinStatus(joinStatus);
 
         log.info("joinStatus 변경후의 application 값 : " + application.toString());
