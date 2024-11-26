@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { cancleAsset, getOneAsset } from "../../api/LicenseApi";
+import { cancleAsset, delForeverAsset, getOneAsset } from "../../api/LicenseApi";
 import FetchingModal from "../common/FetchingModal";
 import ResultModal from "../common/ResultModal";
 import { Button, Card, CardBody, CardTitle, Form, FormGroup, Input, InputGroup, Label } from "reactstrap";
@@ -72,6 +72,14 @@ const LicenseAssetViewComponent = ({ ano }) => {
     const handleClickCancel = (e)=>{
         e.preventDefault();
         cancleAsset(assetDto.ano).then(data=>{
+            setResult(data);
+        })
+    }
+
+    //버튼클릭 : 삭제
+    const handleClickRemove = (e)=>{
+        e.preventDefault();
+        delForeverAsset(assetDto.ano).then(data=>{
             setResult(data);
         })
     }
@@ -194,7 +202,7 @@ const LicenseAssetViewComponent = ({ ano }) => {
                         <div className="text-center">
                                 <Button className="btn " color="primary" onClick={handleClickReContract}>재계약/연장계약</Button>
                                 <Button className="btn" color="primary" style={{marginLeft:10}} onClick={handleClickCancel}>계약해지</Button>
-                                <Button className="btn" color="danger" style={{marginLeft:10}} onClick={moveToList}>삭제</Button>
+                                <Button className="btn" color="danger" style={{marginLeft:10}} onClick={handleClickRemove}>삭제</Button>
                                 <Button className="btn" color="secondary" style={{marginLeft:10}} onClick={moveToList}>리스트</Button></div>
                     </CardBody>
                 </Card>

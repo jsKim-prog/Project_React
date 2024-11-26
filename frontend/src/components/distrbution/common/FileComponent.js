@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Alert, Button,FormGroup, Label } from "reactstrap";
-import { fileDownload } from "../../../api/LicenseApi";
+import { fileDownload } from "../../../api/DistApi";
 
 
 

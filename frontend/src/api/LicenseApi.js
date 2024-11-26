@@ -4,11 +4,7 @@ export const API_DISTRIBUSUION_HOST = "http://192.168.0.211:80"
 const prefix = `${API_DISTRIBUSUION_HOST}/dist/license`
 export const prefixFile = `${API_DISTRIBUSUION_HOST}/dist/file`
 
-/* 공통 : file download */
-export const fileDownload = async (path, filename) => {
-    const res = await axios({method:'GET' , url: `${prefixFile}/${path}/${filename}`, responseType:'blob'})
-    return res.data
-}
+
 
 /* 등록 : info license */
 export const registInfo = async (dto) => {

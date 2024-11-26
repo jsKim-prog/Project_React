@@ -72,7 +72,7 @@ const menu4_sub1 = {
 }
 
 const menu4_sub2 = {
-  title: "하드웨어 관리",
+  title: "하드웨어 관리(구현중)",
   href: "/",
   role: "",
   id: "4_2"
@@ -90,11 +90,29 @@ const menu4_sub4 = {
   role: "",
   id: "4_4"
 }
-const menu4_sub5 = {
-  title: "사무용품 관리",
+
+
+//menu5
+const menu5_topMenu = {
+  title: "자원리스트",
+  href: "/",
+  icon: "bi bi-card-text",
+  role: "",
+  id: "5_0"
+}
+
+const menu5_sub1 = {
+  title: "파일리스트",
+  href: "/dist/filelist",
+  role: "",
+  id: "5_1"
+}
+
+const menu5_sub2 = {
+  title: "계정리스트",
   href: "/",
   role: "",
-  id: "4_5"
+  id: "5_2"
 }
 
 
@@ -118,11 +136,16 @@ export const PageInfo = () => {
 
   const menu4 = {
     topMenu: menu4_topMenu,
-    subMenus: [menu4_sub1, menu4_sub2, menu4_sub3, menu4_sub4, menu4_sub5]
+    subMenus: [menu4_sub1, menu4_sub2, menu4_sub3, menu4_sub4]
+  }
+
+  const menu5 = {
+    topMenu: menu5_topMenu,
+    subMenus: [menu5_sub1, menu5_sub2]
   }
 
 
-  return { menu1, menu2, menu3, menu4 };
+  return { menu1, menu2, menu3, menu4, menu5 };
 
 }
 

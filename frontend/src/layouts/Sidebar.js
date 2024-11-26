@@ -1,4 +1,4 @@
-import { Button, DropdownItem, Nav, NavItem } from "reactstrap";
+import { Button,  Nav, NavItem } from "reactstrap";
 import { Link, useLocation } from "react-router-dom";
 import user1 from "../assets/images/users/user4.jpg";
 import probg from "../assets/images/bg/download.jpg";
@@ -19,7 +19,7 @@ const Sidebar = () => {
   let location = useLocation();
 
   /*custom method*/
-  const { menu1, menu2, menu3, menu4 } = PageInfo();
+  const { menu1, menu2, menu3, menu4, menu5 } = PageInfo();
 
   return (
     <div>
@@ -103,8 +103,22 @@ const Sidebar = () => {
             ))}
           </ul>
 
-
-
+          <NavItem className="sidenav-bg" key={menu5.topMenu.id}>
+            <Link
+              to={menu5.topMenu.href}
+              className={
+                location.pathname === menu5.topMenu.href
+                  ? "active nav-link py-3"
+                  : "nav-link text-secondary py-3"}>
+              <i className={menu5.topMenu.icon}></i>
+              <span className="ms-3 d-inline-block">{menu5.topMenu.title}</span>
+            </Link>
+          </NavItem>
+          <ul className="offset-1" >
+            {menu5.subMenus.map((sub, index) => (
+              <Link to={sub.href} ><li className="sidenav-bg" key={sub.id}>{sub.title}</li></Link>
+            ))}
+          </ul>
 
           <Button
             color="danger"

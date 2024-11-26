@@ -43,6 +43,29 @@ const useDistMove = () => {
         })
     }
 
+     // 목록으로 돌아가는 함수(Filelist)
+     const moveToFileList = (pageParam) => {
+        let queryStr = ""
+
+        if (pageParam) { // pageParam이 있으면,
+            // 파라미터 추출
+            const pageNum = getNum(pageParam.page, 1)
+            const sizeNum = getNum(pageParam.size, 10)
+            // 하나로 합침
+            queryStr = createSearchParams({
+                page: pageNum,
+                size: sizeNum
+            }).toString()
+        } else { // pageParam없으면 기본값 1, 10
+            queryStr = queryDefault
+        }
+        setRefresh(!refresh)
+        navigate({
+            pathname: "../dist/filelist",
+            search: queryStr,
+        })
+    }
+
 
 
 
@@ -94,7 +117,7 @@ const useDistMove = () => {
     }
 
     return (
-        { moveToList, moveToModify, moveToRead, moveToRegister, moveToRequest,  moveToReContract, page, size }
+        { moveToList, moveToModify, moveToRead, moveToRegister, moveToRequest,  moveToReContract, moveToFileList, page, size }
     );
 
 

@@ -19,7 +19,7 @@ const initState = {//AssetLicenseDTO
     totalPrice: 0,
     comment: '',
     expireYN: false,
-    totalUseCount:0,
+    totalUseCount: 0,
     licenseId: 0,
     files: [],
     fileCount: 0,
@@ -48,30 +48,30 @@ const LicenseAssetRequestComponent = () => {
     const [checkInsert, setCheckInsert] = useState(false);  //info 들어왔는지 여부 확인
     const [tPrice, setTPrice] = useState({ number }); //totalPrice(자동계산)
     const [exDate, setExDate] = useState({ currentDate }); //만료일(자동계산)
-    const [tPerson, setTPerson] = useState({number}); //최대 사용 가능인원(자동계산)
+    const [tPerson, setTPerson] = useState({ number }); //최대 사용 가능인원(자동계산)
 
     //totalPrice 변경 관리
     useEffect(() => {
 
         if (licenseAsset.contractCount) {
-                setFetching(true);
-                let total = (licenseAsset.contractCount * infoResult.price);
-                let totalPerson = (licenseAsset.contractCount*infoResult.maxUserCount);
-                setTPrice(total);
-                setTPerson(totalPerson);
-               // console.log(tPrice);
+            setFetching(true);
+            let total = (licenseAsset.contractCount * infoResult.price);
+            let totalPerson = (licenseAsset.contractCount * infoResult.maxUserCount);
+            setTPrice(total);
+            setTPerson(totalPerson);
+            // console.log(tPrice);
 
-                setFetching(false);
+            setFetching(false);
         }
 
         if (licenseAsset.contractDate) {
-                setFetching(true);
-                let exDateVal = changeExDate(licenseAsset.contractDate, infoResult.priceUnit);
-                setExDate(exDateVal);
-               // console.log(exDate);
-                setFetching(false);
+            setFetching(true);
+            let exDateVal = changeExDate(licenseAsset.contractDate, infoResult.priceUnit, licenseAsset.rightType);
+            setExDate(exDateVal);
+            // console.log(exDate);
+            setFetching(false);
         }
-    }, [licenseAsset.contractCount, licenseAsset.contractDate, infoResult.maxUserCount, infoResult.priceUnit, infoResult.price])
+    }, [licenseAsset.contractCount, licenseAsset.contractDate, infoResult.maxUserCount, infoResult.priceUnit, infoResult.price, licenseAsset.rightType])
 
     //입력값 변경시 객체 값 세팅(licenseAsset)
     const handleChangeLicenseAsset = (e) => {
@@ -95,7 +95,7 @@ const LicenseAssetRequestComponent = () => {
             expireDate: exDate,
             contractCount: licenseAsset.contractCount,
             totalPrice: tPrice,
-            totalUseCount:tPerson,
+            totalUseCount: tPerson,
             comment: licenseAsset.comment,
             expireYN: false,
             licenseId: infoResult.lno,
@@ -108,10 +108,10 @@ const LicenseAssetRequestComponent = () => {
         console.log("totalPrice : " + sendData.totalPrice);
         // console.log("등록 : " + formData.get("fileCount"));
         setFetching(true)
-          registAsset(sendData).then(data => {
-               setFetching(false)
-               setResult(data.result)
-           }); 
+        registAsset(sendData).then(data => {
+            setFetching(false)
+            setResult(data.result)
+        });
     }
 
     //모달창 닫기(결과확인 후)
@@ -135,27 +135,33 @@ const LicenseAssetRequestComponent = () => {
         } else {
             setInfoResult({ ...selectInfo }); //받은값 세팅
             setCheckInsert(true); //insert ok
-        }        
+        }
         console.log("받은객체 : " + selectInfo.lno);
         console.log("객체 결과 : " + infoResult.lno);
         setListModalOpen(!listModalOpen);
         setFetching(false);
     }
 
-    const changeExDate = (contractDate, priceUnit) => {
+    const changeExDate = (contractDate, priceUnit, rightType) => {
         // console.log(licenseAsset.contractDate);
         let expireDate = new Date();
-        switch (priceUnit) {
-            case "년":
-                expireDate = addYears(contractDate, 1);
-                break;
-            case "월":
-                expireDate = addMonths(contractDate, 1);
-                break;
-            case "인":
-                expireDate = addYears(contractDate, 1);
-                break;
+        if(rightType==="오픈소스"||rightType==="[설치]영구사용"){
+            expireDate = '9999-12-31';
+        }else{
+
+            switch (priceUnit) {
+                case "년":
+                    expireDate = addYears(contractDate, 1);
+                    break;
+                case "월":
+                    expireDate = addMonths(contractDate, 1);
+                    break;
+                case "인":
+                    expireDate = addYears(contractDate, 1);
+                    break;
+            }
         }
+        
         //console.log(expireDate);
         return format(expireDate, 'yyyy-MM-dd');
     }
@@ -213,13 +219,13 @@ const LicenseAssetRequestComponent = () => {
                                 </InputGroup>
                                 <Label for="maxUserCount" className="mt-3">사용조건(사용가능 인원) </Label>
                                 <InputGroup>
-                                <Input
-                                    id="maxUserCount"
-                                    name="maxUserCount"
-                                    value={infoResult.maxUserCount}
-                                    type="text"
-                                    readOnly
-                                /><span><Input color="dark" type="text" readOnly disabled value={"명"}/></span>
+                                    <Input
+                                        id="maxUserCount"
+                                        name="maxUserCount"
+                                        value={infoResult.maxUserCount}
+                                        type="text"
+                                        readOnly
+                                    /><span><Input color="dark" type="text" readOnly disabled value={"명"} /></span>
                                 </InputGroup>
                             </FormGroup>
                             :
@@ -235,6 +241,7 @@ const LicenseAssetRequestComponent = () => {
                             <Input id="rightType" name="rightType" type="select" onChange={handleChangeLicenseAsset}>
                                 <option>오픈소스</option>
                                 <option>[구입]사용권</option>
+                                <option>[설치]영구사용</option>
                                 <option>[보유]저작권</option>
                                 <option>[보유]특허</option>
                             </Input>
@@ -246,6 +253,7 @@ const LicenseAssetRequestComponent = () => {
                         <FormGroup>
                             <Label for="usePurpose">용도</Label>
                             <Input id="usePurpose" name="usePurpose" type="select" onChange={handleChangeLicenseAsset}>
+                                <option>업무환경</option>
                                 <option>문서/사무</option>
                                 <option>개발</option>
                                 <option>디자인</option>
@@ -325,7 +333,7 @@ const LicenseAssetRequestComponent = () => {
                             </FormText>
                         </FormGroup>
                         <div className="text-center">
-                            <Button className="btn" color="primary" onClick={handleClickAdd} style={{marginRight:10}}>등록하기</Button>
+                            <Button className="btn" color="primary" onClick={handleClickAdd} style={{ marginRight: 10 }}>등록하기</Button>
                             <Button className="btn" color="secondary" onClick={moveToList}>리스트</Button></div>
 
                     </CardBody>
