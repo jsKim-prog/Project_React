@@ -6,7 +6,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Entity
 @Getter
 @Setter
@@ -20,36 +19,83 @@ public class MemberStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long mno;
-    //status 멤버
+
     @Column(nullable = false)
     private String name;
-    //사원 이름
-    @Column(nullable = false)
+
+    @Column(nullable = true)
     private String birth;
-    //생년월일
+
     @Column(nullable = false)
     private String tel;
-    //전화번호
-    @Column(nullable = false)
+
+    @Column(nullable = true)
     private String sex;
-    //성별
+
     private String marital_status;
-    //기혼 유무
+
     private Integer children_count;
-    //자녀 수
-    private String qualifications;
-    //자격증
+
     private String education;
-    //학력
-    private String antecedents;
-    //경력
+
+    // List로 변경: 자격증
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "member_qualifications", joinColumns = @JoinColumn(name = "mno"))
+    @Column(name = "qualification")
+    private List<String> qualifications = new ArrayList<>();
+
+    // List로 변경: 경력
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "member_antecedents", joinColumns = @JoinColumn(name = "mno"))
+    @Column(name = "antecedent")
+    private List<String> antecedents = new ArrayList<>();
+
     @ManyToOne
     @JoinColumn(name = "member_mno")
     private Member member;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Builder.Default
+    private List<StatusFile> StatusFileList = new ArrayList<>();
+    // 사진 파일 관련
 
-    //method
+    public void addAppFile(StatusFile file) {
+
+        file.setOrd(this.StatusFileList.size());
+        StatusFileList.add(file);
+    }
+
+    public void addAppString(String fileName){
+
+        StatusFile statusFile = StatusFile.builder()
+                .fileName(fileName)
+                .build();
+        addAppFile(statusFile);
+
+    }
+
+    // 첨부파일 데이터를 비우고 다시 이미지 추가하는 방식
+    public void clearList() {
+        this.StatusFileList.clear();
+    }
+
+
+    // method to add member relationship
     public void addMember(Member member){
         this.member = member;
+    }
+
+    // 자격증 추가 메소드
+    public void addQualification(String qualification) {
+        if (qualification != null && !qualification.trim().isEmpty()) {
+            this.qualifications.add(qualification);
+        }
+    }
+
+    // 경력 추가 메소드
+    public void addAntecedent(String antecedent) {
+        if (antecedent != null && !antecedent.trim().isEmpty()) {
+            this.antecedents.add(antecedent);
+        }
     }
 }

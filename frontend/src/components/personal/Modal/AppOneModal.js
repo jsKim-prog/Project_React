@@ -83,6 +83,7 @@ const handleClickModify = () => {
       link.href = fileUrl; // Blob URL을 사용
       link.download = memberS.uploadFileNames[0]; // 파일 이름 설정
       link.click(); // 다운로드 실행
+
     } catch (error) {
       console.error("파일 다운로드 중 오류 발생:", error);
     }

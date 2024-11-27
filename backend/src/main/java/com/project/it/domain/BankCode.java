@@ -1,51 +1,68 @@
 package com.project.it.domain;
 
 
-public enum BankCode {
-    TEMP0,
-    BOKRKRSE, //한국은행
-    KODBKRSE, //KDB산업은행
-    IBKOKRSE, //기업은행
-    CZNBKRSE, //국민은행
-    TEMP5,    TEMP6,
-    NFFCKRSE, //수협은행
-    EXIKKRSE, //한국수출입은행
-    TEMP9,    TEMP10,
-    NACFKRSEXXX, //농협은행
-    TEMP12,    TEMP13,    TEMP14,    TEMP15,    TEMP16,    TEMP17,    TEMP18,    TEMP19,
-    HVBKKRSEXXX, //우리은행
-    TEMP21,    TEMP22,
-    SCBLKRSE, //SC제일은행
-    TEMP24,    TEMP25,    TEMP26,
-    CITIKRSX, //씨티은행
-    TEMP28,    TEMP29,    TEMP30,
-    DAEBKR22, //대구은행
-    PUSBKR2P, //부산은행
-    TEMP33,
-    KWABKRSE, //광주은행
-    JJBKKR22, //제주은행
-    TEMP36,
-    JEONKRSE, //전북은행
-    TEMP38,
-    KYNAKR22XXX, //경남은행
-    TEMP40,    TEMP41,    TEMP42,    TEMP43,    TEMP44,    TEMP45,    TEMP46,    TEMP47,    TEMP48,    TEMP49,    TEMP50,    TEMP51,    TEMP52,    TEMP53,    TEMP54,    TEMP55,    TEMP56,    TEMP57,    TEMP58,    TEMP59,    TEMP60,    TEMP61,    TEMP62,    TEMP63,    TEMP64,    TEMP65,    TEMP66,    TEMP67,    TEMP68,    TEMP69,    TEMP70,
-    SHBKKRSEPO, //우체국 은행
-    TEMP72,    TEMP73,    TEMP74,    TEMP75,    TEMP76,    TEMP77,    TEMP78,    TEMP79,    TEMP80,
-    KOEXKRSE, //하나은행
-    TEMP82,    TEMP83,    TEMP84,    TEMP85,    TEMP86,    TEMP87,
-    SHBKKRSE, //신한은행
-    TEMP89,
-    CITIKRSXKAK; // 카카오뱅크
+import lombok.Getter;
 
-    // 문자열을 enum으로 변환하는 메서드
+@Getter
+public enum BankCode {
+    BOKRKRSE("01", "한국은행"),       // 한국은행
+    KODBKRSE("02", "KDB산업은행"),     // KDB산업은행
+    IBKOKRSE("03", "기업은행"),       // 기업은행
+    CZNBKRSE("04", "국민은행"),       // 국민은행
+    NFFCKRSE("05", "수협은행"),       // 수협은행
+    EXIKKRSE("06", "한국수출입은행"), // 한국수출입은행
+    NACFKRSEXXX("07", "농협은행"),    // 농협은행
+    HVBKKRSEXXX("08", "우리은행"),   // 우리은행
+    SCBLKRSE("09", "SC제일은행"),    // SC제일은행
+    CITIKRSX("10", "씨티은행"),      // 씨티은행
+    DAEBKR22("11", "대구은행"),      // 대구은행
+    PUSBKR2P("12", "부산은행"),      // 부산은행
+    KWABKRSE("13", "광주은행"),      // 광주은행
+    JJBKKR22("14", "제주은행"),      // 제주은행
+    JEONKRSE("15", "전북은행"),      // 전북은행
+    KYNAKR22XXX("16", "경남은행"),   // 경남은행
+    SHBKKRSEPO("17", "우체국 은행"), // 우체국 은행
+    KOEXKRSE("18", "하나은행"),      // 하나은행
+    SHBKKRSE("19", "신한은행"),      // 신한은행
+    CITIKRSXKAK("20", "카카오뱅크"); // 카카오뱅크
+
+
+
+    // 은행 코드 값을 반환하는 메서드
+    private final String code;  // 은행 코드 (숫자)
+    // 은행 이름을 반환하는 메서드
+    private final String bankName; // 은행 이름
+
+    // 생성자
+    BankCode(String code, String bankName) {
+        this.code = code;
+        this.bankName = bankName;
+    }
+
+    // 문자열을 BankCode로 변환하는 메서드
     public static BankCode fromString(String role) {
         for (BankCode r : BankCode.values()) {
-            if (r.name().equalsIgnoreCase(role)) {  // 대소문자 구분 없이 비교
+            if (r.name().equalsIgnoreCase(role)) {
                 return r;
             }
         }
-        throw new IllegalArgumentException("Unknown BankCode: " + role);  // 예외 처리
+        throw new IllegalArgumentException("Unknown BankCode: " + role);
     }
 
+    // 숫자 코드로 BankCode 찾기
+    public static BankCode fromCode(String code) {
+        for (BankCode r : BankCode.values()) {
+            if (r.getCode().equals(code)) {
+                return r;
+            }
+        }
+        throw new IllegalArgumentException("Unknown BankCode for code: " + code);
+    }
 
+    // 모든 BankCode 출력
+    public static void printAllBankCodes() {
+        for (BankCode bankCode : BankCode.values()) {
+            System.out.println("Code: " + bankCode.getCode() + ", Bank: " + bankCode.getBankName());
+        }
+    }
 }

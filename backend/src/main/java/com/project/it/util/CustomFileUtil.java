@@ -42,13 +42,16 @@ public class CustomFileUtil { //파일 입출력 담당(p.185)
 
     public List<String> saveFiles(List<MultipartFile> files, String uploadPath) throws RuntimeException {
         if (files == null || files.isEmpty()) {
-                return List.of(); // 파일이 없으면 빈 리스트 반환
+            return List.of(); // 파일이 없으면 빈 리스트 반환
         }
 
         List<String> uploadNames = new ArrayList<>();
         for (MultipartFile multipartFile : files) {
             String originalFilename = multipartFile.getOriginalFilename();
-            if (originalFilename == null) continue; // 파일 이름이 없으면 건너뛰기
+            if (originalFilename == null) {
+                System.out.println("파일 이름이 null입니다. 파일을 건너뜁니다.");
+                continue; // 파일 이름이 없으면 건너뛰기
+            }
 
             String savedName = UUID.randomUUID().toString() + "_" + originalFilename; // UUID + 원본 파일 이름
             Path savePath = Paths.get(uploadPath, savedName);
@@ -66,18 +69,20 @@ public class CustomFileUtil { //파일 입출력 담당(p.185)
                     Path thumbnailPath = Paths.get(uploadPath, "s_" + savedName);
                     // 썸네일 크기 (200x200)로 생성
                     Thumbnails.of(savePath.toFile()).size(200, 200).toFile(thumbnailPath.toFile());
-                    }
-
-                    // 업로드된 파일 이름을 리스트에 추가
-                    uploadNames.add(savedName);
-
-                } catch (IOException e) {
-                    // 에러 메시지에 파일 이름 포함
-                    throw new RuntimeException("파일 업로드 실패: " + originalFilename + " 오류: " + e.getMessage(), e);
                 }
+
+                // 업로드된 파일 이름을 리스트에 추가
+                uploadNames.add(savedName);
+
+            } catch (IOException e) {
+                // 에러 메시지에 파일 이름 포함
+                System.out.println("파일 업로드 실패: " + originalFilename + " 오류: " + e.getMessage());
+                throw new RuntimeException("파일 업로드 실패: " + originalFilename + " 오류: " + e.getMessage(), e);
             }
+        }
         return uploadNames; // 업로드된 파일들의 이름 리스트 반환
     }
+
 
 
 

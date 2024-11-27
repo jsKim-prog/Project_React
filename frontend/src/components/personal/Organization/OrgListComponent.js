@@ -6,6 +6,7 @@ import useCustomMove from "../../../hooks/useCustomList";
 import PageComponent from "../../common/PageComponent";
 import useChangeData from "../../../hooks/useChangeData";
 import debounce from "lodash.debounce";
+import OrgAddModal from "../Modal/OrgAddModal";
 
 // 기본 설정값
 const pageState = {
@@ -30,6 +31,10 @@ const OrgListComponent = () => {
   const { changeTeamName, changeRoleName } = useChangeData();
   const [searchQuery, setSearchQuery] = useState("");
   const [cursorStyle, setCursorStyle] = useState('default'); // 마우스 커서 상태 관리
+  const [selectedNo, setSelectedNo] = useState(null);
+  const [isModalOpen_register, setIsModalOpen_register] = useState(false);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
 
   // 서버 데이터 fetch
   const fetchData = debounce(() => {
@@ -73,6 +78,18 @@ const OrgListComponent = () => {
       });
   };
 
+
+  const openModal_register = () => {
+    console.log("openModalRegister");
+    setIsModalOpen_register(true);
+  };
+
+  const closeModal_register = () => {
+    setIsModalOpen_register(false);
+    refreshData();
+  };
+
+
   // 1인 선택 시의 모달
   const openModal = (mno) => {
     if (mno) {
@@ -86,25 +103,40 @@ const OrgListComponent = () => {
     setSelectedMno(null); // 선택된 mno 초기화
   };
 
+  // 데이터를 새로 불러오는 함수
+  const refreshData = async () => {
+    setFetching(true);
+    try {
+      const data = await list({ page, size, searchQuery: debouncedSearchQuery });
+      console.log("Refreshed data: ", data);
+      setServerData(data);
+    } catch (error) {
+      console.error("Error fetching data while refreshing: ", error);
+    } finally {
+      setFetching(false);
+    }
+  };
+
   return (
     <div>
+      <OrgAddModal isOpen={isModalOpen_register} closeModal={closeModal_register} />
       <OrgOneModal mno={selectedMno} isOpen={isModalOpen} closeModal={closeModal} />
+
       <Card>
         <CardBody>
+          <div style={{display: "flex", justifyContent: "space-between"}}>
           <CardTitle tag="h5" className="align-middle"> 사원 명부 </CardTitle>          
           {/* 검색어 입력 필드 및 버튼 */}
-          <div className="d-flex mb-3">
+          <Button color="primary" onClick={openModal_register}> 사원 추가 </Button>
+          </div>
+          <div style={{display: "flex", justifyContent: "space-between", marginTop:"10px"}}>
             <Input
               type="text"
               name="search"
               placeholder="이름, 직위, 부서로 검색"
               value={searchQuery}
               onChange={handleSearchChange}
-              className="me-2"
             />
-            <Button onClick={handleSearch}>
-              검색
-            </Button>
           </div>
 
           {/* 로딩 중일 때 로딩 스피너를 보여줌 */}

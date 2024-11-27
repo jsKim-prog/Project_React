@@ -32,11 +32,5 @@ public interface MemberRepository extends JpaRepository<Member,String> {
     Page<MemberStatus> searchByQuery(MemberRole searchQuery, Pageable pageable);
 
 
-
-
-
-
-
-
-
+    int countByEmail(String email);
 }

@@ -46,7 +46,9 @@ public class Member {
     }
 
     public void addRole(MemberRole memberRole){
-        memberRoleList.remove(0);
+        if(memberRoleList.size()>0) {
+            memberRoleList.remove(0);
+        }
         memberRoleList.add(memberRole);
     }
 

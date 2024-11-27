@@ -10,6 +10,10 @@ public interface MemberStatusService{
 
     String register(MemberStatusDTO R);
 
+    String registerOne(MemberStatusDTO R);
+
+    int read(MemberStatusDTO R);
+
     MemberStatusDTO readOne(Long mno);
 
     String modifyOne(MemberStatusDTO mdto);

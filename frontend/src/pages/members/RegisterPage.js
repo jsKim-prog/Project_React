@@ -8,8 +8,8 @@ const RegisterPage = () => {
     return (
         <div>
             
-            <div> 
-                <RegisterComponent/>         
+            <div>
+                {/*<RegisterComponent/>         */}
             </div>
         </div>
         

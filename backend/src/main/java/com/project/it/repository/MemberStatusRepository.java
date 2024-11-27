@@ -25,11 +25,7 @@ public interface MemberStatusRepository extends JpaRepository<MemberStatus, Stri
     MemberStatus searchByMno(Long mno);
 
 
+    int countByTel(String tel);
 
-
-
-
-
-
-
+    MemberStatus findByMno(Long mno);
 }
