@@ -170,7 +170,7 @@ const ModifyComponent = () => {
         form.append('tel', Member.tel)
         form.append('sex', Member.sex)
         form.append('mno', token.mno)
-        form.append('password', Member.password)
+        form.append('password', password)
 
         for (let [key, value] of form.entries()) {
             console.log(`${key}: ${value}`);

@@ -219,11 +219,8 @@ public class MemberStatusServiceImpl implements MemberStatusService{
     public String modifyOne(MemberStatusDTO R) {
 
         Member member = memberRepository.searchMemberByMno(R.getMno());
-        member = Member.builder()
-                .mno(R.getMno())
-                .email(R.getEmail())
-                .pw(passwordEncoder.encode(R.getPassword()))
-                .build();
+        log.info(R.getPassword());
+        member.setPw(passwordEncoder.encode(R.getPassword()));
 
 
         MemberStatus memberSB = memberSR.findByMemberMno(member.getMno());
@@ -234,19 +231,12 @@ public class MemberStatusServiceImpl implements MemberStatusService{
         List<String> uploadFileNames = R.getUploadFileNames();
         List<String> uploadFileNames2 = R.getUploadFileNames2();
 
-        Bank bank = Bank.builder()
-                .member(member)
-                .account(R.getAccount())
-                .build();
-
+        Bank bank = bankRepo.findByMemberMno(R.getMno());
+        bank.setAccount(R.getAccount());
         bank.addBankCode(BankCode.fromCode(R.getBankCode()));
 
         if(!uploadFileNames2.isEmpty()){
             uploadFileNames2.forEach(bank::addAppString);}
-
-
-
-
 
 
         MemberStatus memberS = MemberStatus.builder()
@@ -270,6 +260,7 @@ public class MemberStatusServiceImpl implements MemberStatusService{
 
         memberSR.save(memberS);
         bankRepo.save(bank);
+        memberRepository.save(member);
         log.info(memberS.getStatusFileList().toString());
 
         return memberS.getName();
@@ -283,8 +274,8 @@ public class MemberStatusServiceImpl implements MemberStatusService{
         List<MemberStatus> list = memberSR.findAll();
 
         for (MemberStatus memberStatus : list) {
-            Member member = memberRepository.searchMemberByMno(memberStatus.getMno());
-            Organization ot = orgRepo.findByMemberMno(memberStatus.getMno());
+            Member member = memberRepository.searchMemberByMno(memberStatus.getMember().getMno());
+            Organization ot = orgRepo.findByMemberMno(memberStatus.getMember().getMno());
             String team = ot.getOrganizationTeamList().get(ot.getOrganizationTeamList().size() - 1).toString();
 
             MemberStatusDTO memberStatusDTO = MemberStatusDTO.builder()

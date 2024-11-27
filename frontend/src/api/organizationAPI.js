@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_SERVER_HOST = 'http://localhost:80/it'
+const API_SERVER_HOST = 'http://localhost:8002/it'
 
 const host = `${API_SERVER_HOST}/organization`
 

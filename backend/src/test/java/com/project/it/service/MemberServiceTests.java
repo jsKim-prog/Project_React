@@ -45,6 +45,20 @@ public class MemberServiceTests {
         log.info(result);
     }
 
+    @Test
+    public void testRegi(){
+        Member member = memberRepository.searchMemberByMno(102L);
+        member.setPw(passwordEncoder.encode("0000"));
+
+        memberRepository.save(member);
+
+        member = memberRepository.searchMemberByMno(99L);
+        member.setPw(passwordEncoder.encode("0000"));
+        memberRepository.save(member);
+
+
+    }
+
 
 
     @Test
@@ -67,9 +81,7 @@ public class MemberServiceTests {
                         .sex("male")
                         .marital_status("미혼")
                         .children_count(0)
-                        .qualifications("java")
                         .education("대졸")
-                        .antecedents("신입")
                         .member(member)
                         .build();
 
