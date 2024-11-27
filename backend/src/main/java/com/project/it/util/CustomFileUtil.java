@@ -102,6 +102,7 @@ public class CustomFileUtil { //공통 파일 처리
         return uploadDTOS;
     }
 
+
     //파일불러오기
     public ResponseEntity<Resource> getFile(FileUploadDTO fileUploadDTO) {
         String savedPath = fileUploadDTO.getFolderPath();//category+assetNum

@@ -1,5 +1,8 @@
 package com.project.it.constant;
 
+import com.project.it.domain.converter.StatusConverter;
+import jakarta.persistence.Converter;
+
 import java.util.Arrays;
 
 public enum UsePurpose implements EnumMapperType{//사용목적
@@ -8,7 +11,8 @@ public enum UsePurpose implements EnumMapperType{//사용목적
     DESIGN("디자인"),
     BUSINESS("경영/회계"),
     NETWORK("네트워크/보안"),
-    ETC("기타")
+    ETC("기타"),
+    CONFIGURATION("업무환경")
     ;
 
     private String desc;
@@ -22,9 +26,11 @@ public enum UsePurpose implements EnumMapperType{//사용목적
         return desc;
     }
 
-    @Override
-    public UsePurpose parse(String desc) {
-        return Arrays.stream(values()).filter(s->s.desc==desc)
-                .findFirst().orElse(UsePurpose.ETC);
+    @Converter(autoApply = true)
+    public static class UsePurposeConverter extends StatusConverter<UsePurpose> {
+        public static final String ENUM_NAME = "use_purpose";
+        public UsePurposeConverter() {
+            super(UsePurpose.class, ENUM_NAME, false);
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.project.it.constant;
 
+import com.project.it.domain.converter.StatusConverter;
+
 import java.util.Arrays;
 
 public enum ContractStatus implements EnumMapperType{ //계약 상태
@@ -20,9 +22,11 @@ public enum ContractStatus implements EnumMapperType{ //계약 상태
         return desc;
     }
 
-    @Override
-    public ContractStatus parse(String desc) {
-        return Arrays.stream(values()).filter(s->s.desc==desc)
-                .findFirst().orElse(ContractStatus.NEW);
+
+    public static class ContractStatusConverter extends StatusConverter<ContractStatus> {
+        public static final String ENUM_NAME = "contract_status";
+        public ContractStatusConverter() {
+            super(ContractStatus.class, ENUM_NAME, false);
+        }
     }
 }

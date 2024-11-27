@@ -1,5 +1,7 @@
 package com.project.it.constant;
 
+import com.project.it.domain.converter.StatusConverter;
+import jakarta.persistence.Converter;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -23,13 +25,13 @@ public enum PriceUnit implements EnumMapperType{
         return desc;
     }
 
-    @Override
-    public PriceUnit parse(String desc) {
-        return Arrays.stream(values()).filter(s->s.desc==desc)
-                .findFirst().orElse(PriceUnit.YEAR);
+    @Converter
+    public static class PriceUnitConverter extends StatusConverter<PriceUnit> {
+        public static final String ENUM_NAME = "price_unit";
+        public PriceUnitConverter() {
+            super(PriceUnit.class, ENUM_NAME, false);
+        }
     }
-
-
 
 
 }

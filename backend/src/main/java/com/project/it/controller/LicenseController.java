@@ -23,10 +23,12 @@ public class LicenseController {
     @PostMapping("/info")
     public Map<String, Long> registerInfo(InfoLicenseIPDTO infoLicenseIPDTO){
         log.info("(Controller)license info register 실행====등록할 파일 : " + infoLicenseIPDTO);
+
         Long lno = infoService.register(infoLicenseIPDTO);
 
         return Map.of("result", lno);
     }
+    //license asset register 실행==== AssetLicenseIPDTO(ano=null, rightType=INSTALLATION, contractStatus=NEW, contractDate=2024-11-21, expireDate=9999-12-31, contractCount=30, totalPrice=3000000, comment=, usePurpose=OFFICE, expireYN=false, deleteOrNot=false, totalUseCount=30, licenseId=13, files=[org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile@5d49cefa], fileCount=1)
 
 
     //조회 one : info license
@@ -97,7 +99,7 @@ public class LicenseController {
     @DeleteMapping("/asset/{ano}")
     public Map<String, String> removeAsset(@PathVariable("ano")Long ano){
         assetService.remove(ano);
-        return Map.of("RESULT", "SUCCESS");
+        return Map.of("result", "SUCCESS");
     }
     //영구삭제 : asset license(with file list)
     @DeleteMapping("/asset_del/{ano}")

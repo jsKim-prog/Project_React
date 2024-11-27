@@ -27,10 +27,11 @@ public class AssetLicense {
     private Long ano; //관리번호
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "rightType")
+    @Column(name = "rightType", nullable = false)
     private RightType rightType; //권리유형 : 자사특허, (타사)사용권
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ContractStatus contractStatus; //계약구분(신규, 재계약, 갱신..)
     private LocalDate contractDate; //취득일(계약일)
     private LocalDate expireDate; //만료일
@@ -38,6 +39,7 @@ public class AssetLicense {
     private int totalPrice; //구입총액(count*contractCount)
 
    @Enumerated(EnumType.STRING)
+   @Column(nullable = false)
     private UsePurpose usePurpose; //사용목적
 
     @Lob

@@ -5,6 +5,7 @@ import com.project.it.dto.AssetLicenseIPDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -18,6 +19,7 @@ public interface AssetLicenseRepository extends JpaRepository<AssetLicense, Long
     Page<AssetLicense> getList(Pageable pageable);
 
     //D: 라이선스 삭제_삭제처리(리스트에서 보이지 않게)
+    @Modifying
     @Query("update AssetLicense asset set asset.deleteOrNot=:state where asset.ano=:ano")
     void updateToDelete(@Param("ano")Long ano, @Param("state")boolean state);
 }

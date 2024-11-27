@@ -4,6 +4,4 @@ public interface EnumMapperType { //Enum Class getter 통합관리 위한 interf
     String getDesc();
 
 
-    Enum<?> parse(String desc);
-
 }
