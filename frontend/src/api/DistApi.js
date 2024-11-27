@@ -1,7 +1,7 @@
 /*물류 Distribution 공통 Api*/
 import axios from "axios"
+import { API_DISTRIBUSUION_HOST } from "./LicenseApi"
 
-export const API_DISTRIBUSUION_HOST = "http://192.168.0.211:80"
 export const prefixFile = `${API_DISTRIBUSUION_HOST}/dist/file`
 
 /* 공통 : file download */

@@ -110,7 +110,7 @@ const menu5_sub1 = {
 
 const menu5_sub2 = {
   title: "계정리스트",
-  href: "/",
+  href: "/dist/accountlist",
   role: "",
   id: "5_2"
 }

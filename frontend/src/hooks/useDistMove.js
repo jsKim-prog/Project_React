@@ -66,6 +66,29 @@ const useDistMove = () => {
         })
     }
 
+    // 목록으로 돌아가는 함수(/dist/accountlist)
+    const moveToAccountList = (pageParam) => {
+        let queryStr = ""
+
+        if (pageParam) { // pageParam이 있으면,
+            // 파라미터 추출
+            const pageNum = getNum(pageParam.page, 1)
+            const sizeNum = getNum(pageParam.size, 10)
+            // 하나로 합침
+            queryStr = createSearchParams({
+                page: pageNum,
+                size: sizeNum
+            }).toString()
+        } else { // pageParam없으면 기본값 1, 10
+            queryStr = queryDefault
+        }
+        setRefresh(!refresh)
+        navigate({
+            pathname: "../dist/accountlist",
+            search: queryStr,
+        })
+    }
+
 
 
 
@@ -106,6 +129,14 @@ const useDistMove = () => {
         })
     }
 
+    //등록화면 넘어가기(Account등록)
+    const moveToAccountRegister = () => {
+        console.log("moveToAccountRegister...");
+        navigate({
+            pathname: `../dist/account/request`
+        })
+    }
+
     //재계약 화면으로 넘어가기(with info 객체)
     const moveToReContract = (infoDto) =>{
         console.log("moveToReContract..."+JSON.stringify(infoDto));
@@ -117,7 +148,8 @@ const useDistMove = () => {
     }
 
     return (
-        { moveToList, moveToModify, moveToRead, moveToRegister, moveToRequest,  moveToReContract, moveToFileList, page, size }
+        { moveToList, moveToModify, moveToRead, moveToRegister, moveToRequest,  moveToReContract, moveToFileList, moveToAccountList, 
+            moveToAccountRegister,page, size }
     );
 
 

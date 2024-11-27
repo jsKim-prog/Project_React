@@ -1,11 +1,11 @@
 import axios from "axios"
 
-export const API_DISTRIBUSUION_HOST = "http://192.168.0.211:80"
+export const API_DISTRIBUSUION_HOST = "http://192.168.0.211:8001"
 const prefix = `${API_DISTRIBUSUION_HOST}/dist/license`
-export const prefixFile = `${API_DISTRIBUSUION_HOST}/dist/file`
+const prefixAccount = `${API_DISTRIBUSUION_HOST}/dist/account`
 
 
-
+/* INFO---------------------------------------------------------------------------------------- */
 /* 등록 : info license */
 export const registInfo = async (dto) => {
     const res = await axios.post(`${prefix}/info`, dto)
@@ -38,7 +38,7 @@ export const delForeverInfo = async (lno) => {
     return res.data
 }
 
-
+/* License Asset---------------------------------------------------------------------------------------- */
 /* 등록 : asset license */
 export const registAsset = async (formData) => {
     const header = { headers: { "Content-Type": "multipart/form-data" } }
@@ -74,4 +74,51 @@ export const delForeverAsset = async (ano) => {
     return res.data
 }
 
+/* Account ---------------------------------------------------------------------------------------- */
 
+/* 등록  -no asset*/
+export const registAccount = async (sendData) => {
+    console.log(sendData);
+    const header = { headers: { "Content-Type": "application/json" } }
+    const res = await axios.post(`${prefixAccount}/register`, sendData, header)
+    return res.data
+}
+
+/* 등록  -asset*/
+export const registAssetAccount = async (formData) => {
+    const res = await axios.post(`${prefixAccount}/register_asset`, formData)
+    return res.data
+}
+/* 조회 */
+export const getOneAccount = async (siNum) => {
+    console.log("요청 async siNum : "+siNum);
+    const res = await axios.get(`${prefixAccount}/${siNum}`)
+    return res.data
+}
+/* 조회 all  */
+export const getListAccount = async (pageParam) => {
+    const { page, size } = pageParam;
+    const res = await axios.get(`${prefixAccount}/list`,{params:{page:page, size:size}})
+    return res.data
+}
+/* 변경 :리스트 정보변경(주소, 사용여부, 인증여부) */
+export const modAccountInfo = async (dto) => {
+    const res = await axios.put(`${prefixAccount}/modify_list`, dto)
+    return res.data
+}
+
+/* 변경 :리스트-계정만 변경 */
+export const modAccountList = async (accounts, siNum) => {
+    const res = await axios.put(`${prefixAccount}/modify_account/${siNum}`, accounts)
+    return res.data
+}
+/* 삭제처리 */
+export const useNotAccount = async (siNum) => {
+    const res = await axios.delete(`${prefixAccount}/usenot/${siNum}`)
+    return res.data
+}
+/* 영구삭제 : asset license(with file list) */
+export const removeAccount = async (siNum) => {
+    const res = await axios.delete(`${prefixAccount}/${siNum}`)
+    return res.data
+}
