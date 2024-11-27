@@ -19,7 +19,7 @@ const initState={ //PageResponseDTO
 }
 
 const AccountListComponent = () => {
-    const {page, size, refresh, moveToAccountList, moveToAccountRegister} = useDistMove();
+    const {page, size, refresh, moveToAccountList, moveToAccountRegister, moveToAccountRead} = useDistMove();
     const [serverData, setServerData] = useState(initState)
     const [fetching, setFetching] = useState(false) //진행모달
 
@@ -45,17 +45,15 @@ const AccountListComponent = () => {
               <th>#</th>
                 <th>경로명</th>
                 <th>접속경로</th>  
-                <th>등록계정/허용계정</th>
                 <th>상태</th>
               </tr>
             </thead>
             <tbody>
               {serverData.dtoList.map((dto, index) => (           
-                <tr key={dto.siNum} className="border-top"> 
+                <tr key={dto.siNum} className="border-top" onClick={()=>moveToAccountRead(dto.siNum)}> 
                 <td>{dto.siNum}</td>
                 <td>{dto.siteName}</td>               
                   <td>{dto.siteUrl}</td>
-                  <td>{dto.currentUseCount}/{dto.totalUseCount}</td>
                   <td>{dto.useState? "사용중": "사용안함"} </td>
                 </tr> 
               ))}

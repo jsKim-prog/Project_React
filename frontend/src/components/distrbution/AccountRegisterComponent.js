@@ -17,6 +17,7 @@ const initState = {//ListAccountIPDTO - no asset
 
 
 
+
 const AccountRegisterComponent = () => {
 
     const [account, setAccount] = useState({ ...initState }); //등록용 객체 set용
@@ -59,13 +60,15 @@ const AccountRegisterComponent = () => {
             return;
         }
 
-        const sendData = {//ListAccountIPDTO
+        const formData = {//ListAccountIPDTO
             siteName : account.siteName,
             siteUrl : account.siteUrl,
-            useState : true,
-            userAuthentication : false,
+            useState : account.useState,
+            userAuthentication : account.userAuthentication,
             accountObjectList : inputList
         }
+
+        const sendData = JSON.stringify(formData);
 
         console.log("등록 : " + JSON.stringify(sendData));
         setFetching(true)

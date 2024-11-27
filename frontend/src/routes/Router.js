@@ -22,6 +22,7 @@ const LicenseAssetReContract = lazy(()=>import("../pages/distribution/LicenseAss
 const FileList = lazy(()=>import("../pages/distribution/FileList"));
 const AccountList = lazy(()=>import("../pages/distribution/AccountList"));
 const AccountAdd = lazy(()=>import("../pages/distribution/AccountAdd"));
+const AccountRead = lazy(()=>import("../pages/distribution/AccountRead"));
 
 /*****Routes******/
 
@@ -45,7 +46,7 @@ const ThemeRoutes = [
       { path: "/dist/filelist", exact: true, element:<FileList/>},
       { path: "/dist/accountlist", exact: true, element:<AccountList/>},
       { path: "/dist/account/request", exact: true, element:<AccountAdd/>},
-      
+      { path: "/dist/account/:siNum", exact: true, element:<AccountRead/>},
     ],
   },
 ];

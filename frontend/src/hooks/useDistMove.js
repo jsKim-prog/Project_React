@@ -113,6 +113,17 @@ const useDistMove = () => {
         })
     }
 
+    // 조회 화면으로 넘어가는 메서드(asset)
+    const moveToAccountRead = (siNum) => {
+        console.log(queryDefault);  
+        console.log("요청 siNum : "+siNum);
+
+        navigate({
+            pathname: `../dist/account/${siNum}`,
+            search: queryDefault
+        })
+    }
+
     //등록화면 넘어가기(info등록)
     const moveToRegister = () => {
         console.log("moveToRegister...");
@@ -149,7 +160,7 @@ const useDistMove = () => {
 
     return (
         { moveToList, moveToModify, moveToRead, moveToRegister, moveToRequest,  moveToReContract, moveToFileList, moveToAccountList, 
-            moveToAccountRegister,page, size }
+            moveToAccountRegister, moveToAccountRead, page, size }
     );
 
 
